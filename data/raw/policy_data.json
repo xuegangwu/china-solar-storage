@@ -1,0 +1,92 @@
+{
+  "provinces": {
+    "上海市": {
+      "benchmark_price": 0.4155,
+      "peak_hours": "8:00-11:00, 15:00-22:00",
+      "valley_hours": "23:00-次日 8:00",
+      "peak_price": 0.6233,
+      "valley_price": 0.2078,
+      "spread": 0.4155,
+      "policy": "工商业储能补贴 0.1 元/kWh",
+      "storage_requirement": "无强制配储"
+    },
+    "浙江省": {
+      "benchmark_price": 0.4155,
+      "peak_hours": "8:00-11:00, 15:00-22:00",
+      "valley_hours": "23:00-次日 8:00",
+      "peak_price": 0.6233,
+      "valley_price": 0.2078,
+      "spread": 0.4155,
+      "policy": "省级补贴 0.1 元/kWh，市级额外补贴",
+      "storage_requirement": "鼓励配储 10%"
+    },
+    "广东省": {
+      "benchmark_price": 0.4530,
+      "peak_hours": "9:00-12:00, 14:00-19:00",
+      "valley_hours": "23:00-次日 9:00",
+      "peak_price": 0.6795,
+      "valley_price": 0.2265,
+      "spread": 0.4530,
+      "policy": "深圳市补贴 0.3 元/kWh",
+      "storage_requirement": "配储 20%，2 小时"
+    },
+    "北京市": {
+      "benchmark_price": 0.3939,
+      "peak_hours": "8:00-11:00, 16:00-21:00",
+      "valley_hours": "23:00-次日 7:00",
+      "peak_price": 0.5909,
+      "valley_price": 0.1970,
+      "spread": 0.3939,
+      "policy": "区级补贴 0.1-0.2 元/kWh",
+      "storage_requirement": "鼓励配储"
+    },
+    "江苏省": {
+      "benchmark_price": 0.3910,
+      "peak_hours": "8:00-12:00, 17:00-21:00",
+      "valley_hours": "23:00-次日 8:00",
+      "peak_price": 0.5865,
+      "valley_price": 0.1955,
+      "spread": 0.3910,
+      "policy": "工商业储能补贴 0.1 元/kWh（前 3 年）",
+      "storage_requirement": "配储 15%，2 小时"
+    },
+    "山东省": {
+      "benchmark_price": 0.3949,
+      "peak_hours": "8:00-11:00, 16:00-21:00",
+      "valley_hours": "23:00-次日 7:00",
+      "peak_price": 0.5924,
+      "valley_price": 0.1975,
+      "spread": 0.3949,
+      "policy": "无省级补贴",
+      "storage_requirement": "配储 10-20%，2-4 小时"
+    }
+  },
+  "vietnam": {
+    "general": {
+      "fit_price": 0.08,
+      "currency": "USD/kWh",
+      "policy": "FIT 电价政策，期限 20 年",
+      "tax": "企业所得税减免 10%"
+    },
+    "provinces": {
+      "宁顺省": {
+        "grade": "A",
+        "radiation": 1600,
+        "land_cost": "中等",
+        "grid_access": "良好"
+      },
+      "平顺省": {
+        "grade": "A",
+        "radiation": 1550,
+        "land_cost": "中等",
+        "grid_access": "良好"
+      },
+      "林同省": {
+        "grade": "A",
+        "radiation": 1500,
+        "land_cost": "较低",
+        "grid_access": "一般"
+      }
+    }
+  }
+}

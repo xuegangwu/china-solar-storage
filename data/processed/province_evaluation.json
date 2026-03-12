@@ -1,0 +1,642 @@
+{
+  "generated_at": "2026-03-11T12:01:59.322304",
+  "weights": {
+    "resource": 0.15,
+    "price": 0.2,
+    "policy": 0.15,
+    "grid": 0.5
+  },
+  "version": "v0.3",
+  "data": [
+    {
+      "province": "上海市",
+      "scores": {
+        "resource": 60,
+        "price": 85,
+        "policy": 100,
+        "grid": 85.0,
+        "total": 83.5
+      },
+      "grade": "B",
+      "suggestion": "推荐投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4330.05,
+        "annual_opex": 700.0,
+        "annual_net": 3630.05,
+        "payback_years": 9.64,
+        "irr_approx": 10.37
+      }
+    },
+    {
+      "province": "浙江省",
+      "scores": {
+        "resource": 60,
+        "price": 85,
+        "policy": 100,
+        "grid": 68.0,
+        "total": 75.0
+      },
+      "grade": "B",
+      "suggestion": "推荐投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4031.18,
+        "annual_opex": 700.0,
+        "annual_net": 3331.18,
+        "payback_years": 10.51,
+        "irr_approx": 9.52
+      }
+    },
+    {
+      "province": "广东省",
+      "scores": {
+        "resource": 60,
+        "price": 100,
+        "policy": 100,
+        "grid": 60.0,
+        "total": 74.0
+      },
+      "grade": "B",
+      "suggestion": "推荐投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4745.63,
+        "annual_opex": 700.0,
+        "annual_net": 4045.63,
+        "payback_years": 8.65,
+        "irr_approx": 11.56
+      }
+    },
+    {
+      "province": "北京市",
+      "scores": {
+        "resource": 60,
+        "price": 85,
+        "policy": 100,
+        "grid": 64.0,
+        "total": 73.0
+      },
+      "grade": "B",
+      "suggestion": "推荐投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4446.97,
+        "annual_opex": 700.0,
+        "annual_net": 3746.97,
+        "payback_years": 9.34,
+        "irr_approx": 10.71
+      }
+    },
+    {
+      "province": "海南省",
+      "scores": {
+        "resource": 60,
+        "price": 80,
+        "policy": 85,
+        "grid": 64.0,
+        "total": 69.75
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4843.85,
+        "annual_opex": 700.0,
+        "annual_net": 4143.85,
+        "payback_years": 8.45,
+        "irr_approx": 11.84
+      }
+    },
+    {
+      "province": "福建省",
+      "scores": {
+        "resource": 60,
+        "price": 80,
+        "policy": 85,
+        "grid": 62.400000000000006,
+        "total": 68.95
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4011.97,
+        "annual_opex": 700.0,
+        "annual_net": 3311.97,
+        "payback_years": 10.57,
+        "irr_approx": 9.46
+      }
+    },
+    {
+      "province": "天津市",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 100,
+        "grid": 60.0,
+        "total": 66.0
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4066.6,
+        "annual_opex": 700.0,
+        "annual_net": 3366.6,
+        "payback_years": 10.4,
+        "irr_approx": 9.62
+      }
+    },
+    {
+      "province": "安徽省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 100,
+        "grid": 57.599999999999994,
+        "total": 64.8
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3829.78,
+        "annual_opex": 700.0,
+        "annual_net": 3129.78,
+        "payback_years": 11.18,
+        "irr_approx": 8.94
+      }
+    },
+    {
+      "province": "云南省",
+      "scores": {
+        "resource": 60,
+        "price": 55,
+        "policy": 85,
+        "grid": 62.400000000000006,
+        "total": 63.95
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3388.64,
+        "annual_opex": 700.0,
+        "annual_net": 2688.64,
+        "payback_years": 13.02,
+        "irr_approx": 7.68
+      }
+    },
+    {
+      "province": "江西省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 85,
+        "grid": 60.0,
+        "total": 63.75
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3677.95,
+        "annual_opex": 700.0,
+        "annual_net": 2977.95,
+        "payback_years": 11.75,
+        "irr_approx": 8.51
+      }
+    },
+    {
+      "province": "湖北省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 85,
+        "grid": 58.4,
+        "total": 62.95
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3675.96,
+        "annual_opex": 700.0,
+        "annual_net": 2975.96,
+        "payback_years": 11.76,
+        "irr_approx": 8.5
+      }
+    },
+    {
+      "province": "广西",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 85,
+        "grid": 57.599999999999994,
+        "total": 62.55
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3823.31,
+        "annual_opex": 700.0,
+        "annual_net": 3123.31,
+        "payback_years": 11.21,
+        "irr_approx": 8.92
+      }
+    },
+    {
+      "province": "四川省",
+      "scores": {
+        "resource": 40,
+        "price": 60,
+        "policy": 85,
+        "grid": 60.0,
+        "total": 60.75
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3222.02,
+        "annual_opex": 700.0,
+        "annual_net": 2522.02,
+        "payback_years": 13.88,
+        "irr_approx": 7.21
+      }
+    },
+    {
+      "province": "江苏省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 100,
+        "grid": 42.0,
+        "total": 57.0
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3897.74,
+        "annual_opex": 700.0,
+        "annual_net": 3197.74,
+        "payback_years": 10.95,
+        "irr_approx": 9.14
+      }
+    },
+    {
+      "province": "河北省",
+      "scores": {
+        "resource": 80,
+        "price": 60,
+        "policy": 85,
+        "grid": 39.0,
+        "total": 56.25
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3915.3,
+        "annual_opex": 700.0,
+        "annual_net": 3215.3,
+        "payback_years": 10.89,
+        "irr_approx": 9.19
+      }
+    },
+    {
+      "province": "陕西省",
+      "scores": {
+        "resource": 80,
+        "price": 60,
+        "policy": 85,
+        "grid": 39.0,
+        "total": 56.25
+      },
+      "grade": "C",
+      "suggestion": "谨慎投资",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4091.82,
+        "annual_opex": 700.0,
+        "annual_net": 3391.82,
+        "payback_years": 10.32,
+        "irr_approx": 9.69
+      }
+    },
+    {
+      "province": "河南省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 85,
+        "grid": 42.0,
+        "total": 54.75
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3901.92,
+        "annual_opex": 700.0,
+        "annual_net": 3201.92,
+        "payback_years": 10.93,
+        "irr_approx": 9.15
+      }
+    },
+    {
+      "province": "贵州省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 85,
+        "grid": 42.0,
+        "total": 54.75
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3370.27,
+        "annual_opex": 700.0,
+        "annual_net": 2670.27,
+        "payback_years": 13.11,
+        "irr_approx": 7.63
+      }
+    },
+    {
+      "province": "辽宁省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 85,
+        "grid": 39.0,
+        "total": 53.25
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3761.0,
+        "annual_opex": 700.0,
+        "annual_net": 3061.0,
+        "payback_years": 11.43,
+        "irr_approx": 8.75
+      }
+    },
+    {
+      "province": "吉林省",
+      "scores": {
+        "resource": 60,
+        "price": 60,
+        "policy": 85,
+        "grid": 37.2,
+        "total": 52.35
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3661.19,
+        "annual_opex": 700.0,
+        "annual_net": 2961.19,
+        "payback_years": 11.82,
+        "irr_approx": 8.46
+      }
+    },
+    {
+      "province": "湖南省",
+      "scores": {
+        "resource": 40,
+        "price": 60,
+        "policy": 85,
+        "grid": 42.0,
+        "total": 51.75
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3580.28,
+        "annual_opex": 700.0,
+        "annual_net": 2880.28,
+        "payback_years": 12.15,
+        "irr_approx": 8.23
+      }
+    },
+    {
+      "province": "重庆市",
+      "scores": {
+        "resource": 40,
+        "price": 60,
+        "policy": 85,
+        "grid": 40.800000000000004,
+        "total": 51.15
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 2954.01,
+        "annual_opex": 700.0,
+        "annual_net": 2254.01,
+        "payback_years": 15.53,
+        "irr_approx": 6.44
+      }
+    },
+    {
+      "province": "山西省",
+      "scores": {
+        "resource": 80,
+        "price": 40,
+        "policy": 85,
+        "grid": 24.0,
+        "total": 44.75
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3707.51,
+        "annual_opex": 700.0,
+        "annual_net": 3007.51,
+        "payback_years": 11.64,
+        "irr_approx": 8.59
+      }
+    },
+    {
+      "province": "黑龙江省",
+      "scores": {
+        "resource": 60,
+        "price": 55,
+        "policy": 85,
+        "grid": 24.0,
+        "total": 44.75
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3508.89,
+        "annual_opex": 700.0,
+        "annual_net": 2808.89,
+        "payback_years": 12.46,
+        "irr_approx": 8.03
+      }
+    },
+    {
+      "province": "青海省",
+      "scores": {
+        "resource": 100,
+        "price": 35,
+        "policy": 75,
+        "grid": 22.0,
+        "total": 44.25
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 4633.21,
+        "annual_opex": 700.0,
+        "annual_net": 3933.21,
+        "payback_years": 8.9,
+        "irr_approx": 11.24
+      }
+    },
+    {
+      "province": "山东省",
+      "scores": {
+        "resource": 60,
+        "price": 65,
+        "policy": 65,
+        "grid": 24.0,
+        "total": 43.75
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3952.79,
+        "annual_opex": 700.0,
+        "annual_net": 3252.79,
+        "payback_years": 10.76,
+        "irr_approx": 9.29
+      }
+    },
+    {
+      "province": "内蒙古",
+      "scores": {
+        "resource": 80,
+        "price": 35,
+        "policy": 75,
+        "grid": 22.0,
+        "total": 41.25
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3583.77,
+        "annual_opex": 700.0,
+        "annual_net": 2883.77,
+        "payback_years": 12.14,
+        "irr_approx": 8.24
+      }
+    },
+    {
+      "province": "宁夏",
+      "scores": {
+        "resource": 80,
+        "price": 35,
+        "policy": 75,
+        "grid": 20.0,
+        "total": 40.25
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3822.92,
+        "annual_opex": 700.0,
+        "annual_net": 3122.92,
+        "payback_years": 11.21,
+        "irr_approx": 8.92
+      }
+    },
+    {
+      "province": "甘肃省",
+      "scores": {
+        "resource": 100,
+        "price": 35,
+        "policy": 75,
+        "grid": 9.0,
+        "total": 37.75
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3988.47,
+        "annual_opex": 700.0,
+        "annual_net": 3288.47,
+        "payback_years": 10.64,
+        "irr_approx": 9.4
+      }
+    },
+    {
+      "province": "新疆",
+      "scores": {
+        "resource": 100,
+        "price": 35,
+        "policy": 75,
+        "grid": 4.0,
+        "total": 35.25
+      },
+      "grade": "D",
+      "suggestion": "暂不建议",
+      "roi": {
+        "capacity_mw": 100,
+        "total_investment": 35000,
+        "annual_revenue": 3006.45,
+        "annual_opex": 700.0,
+        "annual_net": 2306.45,
+        "payback_years": 15.17,
+        "irr_approx": 6.59
+      }
+    }
+  ]
+}

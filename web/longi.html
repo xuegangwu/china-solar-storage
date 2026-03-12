@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光储龙虾 - 全球光储信息中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+        
+        .logo-icon { font-size: 36px; }
+        .logo-text h1 { font-size: 24px; font-weight: 700; }
+        .logo-text p { font-size: 12px; opacity: 0.8; }
+        
+        .nav {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .nav a:hover { color: white; }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* 新闻轮播样式 */
+        .news-carousel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+        }
+        
+        .carousel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .carousel-header h2 {
+            font-size: 24px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .carousel-language {
+            font-size: 13px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        
+        .carousel-content {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .carousel-item {
+            display: none;
+            padding: 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .carousel-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .carousel-item.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .item-flag {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .item-content h3 {
+            font-size: 18px;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .item-content p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .item-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .item-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .impact-level {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .impact-high { background: #fef2f2; color: #dc2626; }
+        .impact-medium { background: #fffbeb; color: #d97706; }
+        .impact-low { background: #f0fdf4; color: #16a34a; }
+        
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .carousel-controls button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .carousel-controls button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .carousel-dots {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .carousel-dots .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .carousel-dots .dot.active {
+            background: #667eea;
+            width: 30px;
+            border-radius: 5px;
+        }
+        
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+        
+        .hero h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        .search-box {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .search-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-value {
+            font-size: 42px;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card-icon {
+            font-size: 40px;
+        }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .card-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-stat {
+            text-align: center;
+        }
+        
+        .card-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .card-stat-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .card-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .card-list-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .card-list-item .tag {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .tag-new { background: #f0f9ff; color: #0284c7; }
+        .tag-hot { background: #fef2f2; color: #dc2626; }
+        .tag-policy { background: #f0fdf4; color: #16a34a; }
+        
+        .card-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .card-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            background: rgba(0,0,0,0.2);
+            padding: 40px;
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 60px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← 返回首页</a>
+    
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🦞</div>
+            <div class="logo-text">
+                <h1>光储龙虾</h1>
+                <p>全球光储信息中心 · Solar-Storage Intelligence</p>
+            </div>
+        </div>
+        <div class="nav">
+            <a href="#products">产品库</a>
+            <a href="#projects">项目库</a>
+            <a href="#policies">政策库</a>
+            <a href="#companies">企业库</a>
+            <a href="#market">市场分析</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 新闻轮播 -->
+        <div class="news-carousel">
+            <div class="carousel-header">
+                <h2>📰 政策快讯 <span style="font-size: 14px; color: #999; font-weight: normal;">Policy News</span></h2>
+                <span class="carousel-language" id="carousel-lang">🇨🇳 中文</span>
+            </div>
+            
+            <div class="carousel-content" id="carousel-content">
+                <!-- 动态加载新闻 -->
+            </div>
+            
+            <div class="carousel-controls">
+                <button onclick="prevSlide()">◀</button>
+                <div class="carousel-dots" id="carousel-dots"></div>
+                <button onclick="nextSlide()">▶</button>
+            </div>
+        </div>
+        
+        <div class="hero">
+            <h2>🦞 光储龙虾</h2>
+            <p>自动收集全球光储产品、项目、政策信息，为投资决策提供智能参考</p>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="搜索产品、项目、政策、企业...">
+                <button class="search-btn">🔍 搜索</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">1,250</div>
+                <div class="stat-label">产品数据</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">680</div>
+                <div class="stat-label">项目追踪</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">320</div>
+                <div class="stat-label">政策信息</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">150</div>
+                <div class="stat-label">企业库</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">50+</div>
+                <div class="stat-label">覆盖国家</div>
+            </div>
+        </div>
+        
+        <div class="cards">
+            <!-- 产品库卡片 -->
+            <div class="card" id="products">
+                <div class="card-header">
+                    <div class="card-icon">📦</div>
+                    <div class="card-title">产品库</div>
+                </div>
+                <div class="card-desc">全球光伏组件、逆变器、储能电池产品信息，实时更新价格和规格</div>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">1,250</div>
+                        <div class="card-stat-label">产品</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">50+</div>
+                        <div class="card-stat-label">品牌</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">每日</div>
+                        <div class="card-stat-label">更新</div>
+                    </div>
+                </div>
+                <ul class="card-list">
+                    <li class="card-list-item">
+                        <span>隆基 Hi-MO 7 组件</span>
+                        <span class="tag tag-new">NEW</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>华为 FusionSolar 储能</span>
+                        <span class="tag tag-hot">HOT</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>阳光电源逆变器</span>
+                        <span class="tag tag-new">NEW</span>
+                    </li>
+                </ul>
+                <a href="#" class="card-btn">浏览产品库 →</a>
+            </div>
+            
+            <!-- 项目库卡片 -->
+            <div class="card" id="projects">
+                <div class="card-header">
+                    <div class="card-icon">🏗️</div>
+                    <div class="card-title">项目库</div>
+                </div>
+                <div class="card-desc">全球光储项目动态追踪，从规划到并网全生命周期管理</div>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">680</div>
+                        <div class="card-stat-label">项目</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">50GW+</div>
+                        <div class="card-stat-label">总容量</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">实时</div>
+                        <div class="card-stat-label">更新</div>
+                    </div>
+                </div>
+                <ul class="card-list">
+                    <li class="card-list-item">
+                        <span>沙特 2.6GW 光伏项目</span>
+                        <span class="tag tag-hot">HOT</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>阿联酋 2GW 光储项目</span>
+                        <span class="tag tag-new">NEW</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>澳大利亚 1.5GW 项目</span>
+                        <span class="tag tag-policy">在建</span>
+                    </li>
+                </ul>
+                <a href="#" class="card-btn">查看项目库 →</a>
+            </div>
+            
+            <!-- 政策库卡片 -->
+            <div class="card" id="policies">
+                <div class="card-header">
+                    <div class="card-icon">📜</div>
+                    <div class="card-title">政策库</div>
+                </div>
+                <div class="card-desc">各国光储政策聚合，补贴、税收、电价政策一目了然</div>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">320</div>
+                        <div class="card-stat-label">政策</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">50+</div>
+                        <div class="card-stat-label">国家</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">每日</div>
+                        <div class="card-stat-label">更新</div>
+                    </div>
+                </div>
+                <ul class="card-list">
+                    <li class="card-list-item">
+                        <span>中国十四五可再生能源规划</span>
+                        <span class="tag tag-policy">政策</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>美国 IRA 法案补贴细则</span>
+                        <span class="tag tag-hot">HOT</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>欧盟 REPowerEU 计划</span>
+                        <span class="tag tag-policy">政策</span>
+                    </li>
+                </ul>
+                <a href="#" class="card-btn">查询政策库 →</a>
+            </div>
+        </div>
+        
+        <div class="cards">
+            <!-- 企业库卡片 -->
+            <div class="card" id="companies">
+                <div class="card-header">
+                    <div class="card-icon">🏢</div>
+                    <div class="card-title">企业库</div>
+                </div>
+                <div class="card-desc">全球光储企业信息，包括产能、财务、联系方式</div>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">150</div>
+                        <div class="card-stat-label">企业</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">30+</div>
+                        <div class="card-stat-label">国家</div>
+                    </div>
+                </div>
+                <ul class="card-list">
+                    <li class="card-list-item">
+                        <span>隆基绿能 (601012.SH)</span>
+                        <span class="tag tag-hot">Tier 1</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>晶科能源 (JKS.N)</span>
+                        <span class="tag tag-hot">Tier 1</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>特斯拉能源</span>
+                        <span class="tag tag-new">储能</span>
+                    </li>
+                </ul>
+                <a href="#" class="card-btn">查看企业库 →</a>
+            </div>
+            
+            <!-- 市场分析卡片 -->
+            <div class="card" id="market">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">市场分析</div>
+                </div>
+                <div class="card-desc">价格走势、市场趋势、竞争格局深度分析</div>
+                <div class="card-stats">
+                    <div class="card-stat">
+                        <div class="card-stat-value">实时</div>
+                        <div class="card-stat-label">价格</div>
+                    </div>
+                    <div class="card-stat">
+                        <div class="card-stat-value">周度</div>
+                        <div class="card-stat-label">报告</div>
+                    </div>
+                </div>
+                <ul class="card-list">
+                    <li class="card-list-item">
+                        <span>组件价格：$0.15/W</span>
+                        <span class="tag tag-policy">-2%</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>储能系统：$0.25/Wh</span>
+                        <span class="tag tag-policy">-5%</span>
+                    </li>
+                    <li class="card-list-item">
+                        <span>多晶硅料：$25/kg</span>
+                        <span class="tag tag-hot">持平</span>
+                    </li>
+                </ul>
+                <a href="#" class="card-btn">查看市场分析 →</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="footer-links">
+            <a href="#">关于我们</a>
+            <a href="#">联系方式</a>
+            <a href="#">API 文档</a>
+            <a href="#">数据订阅</a>
+            <a href="/">返回首页</a>
+        </div>
+        <p>© 2026 光储龙虾 · Solar-Storage Intelligence Platform</p>
+        <p style="margin-top: 10px; font-size: 12px; opacity: 0.6;">
+            数据来源于公开信息，仅供参考 · 更新时间：2026-03-11
+        </p>
+    </div>
+    
+    <script>
+        // 新闻数据（示例）
+        const newsData = [
+            {
+                news_id: 'NEWS_001',
+                policy_id: 'POL_CN_20260311_001',
+                country: 'CN',
+                flag: '🇨🇳',
+                title: '国家能源局：2026 年风电光伏新增装机目标 200GW',
+                title_en: 'NEA: 2026 Wind and Solar Target Set at 200GW',
+                summary: '国家能源局发布 2026 年可再生能源发展目标，风电光伏新增装机目标 200GW，配储要求不低于 15%...',
+                summary_en: 'The National Energy Administration released 2026 renewable energy targets, with 200GW new wind and solar capacity and minimum 15% storage requirement...',
+                agency: '国家能源局',
+                agency_en: 'National Energy Administration',
+                publish_date: '2026-03-10',
+                impact_level: 'high',
+                impact_text: '重大影响',
+                impact_text_en: 'High Impact'
+            },
+            {
+                news_id: 'NEWS_002',
+                policy_id: 'POL_US_20260309_001',
+                country: 'US',
+                flag: '🇺🇸',
+                title: '美国 IRA 法案：ITC 税收抵免延长至 2035 年',
+                title_en: 'US IRA Act: ITC Tax Credit Extended to 2035',
+                summary: '美国国税局发布通胀削减法案实施细则，ITC 投资税收抵免延长 10 年，储能项目首次独立享受抵免...',
+                summary_en: 'IRS released IRA implementation details, ITC tax credit extended by 10 years, energy storage projects can now claim credit independently...',
+                agency: '美国国税局',
+                agency_en: 'IRS',
+                publish_date: '2026-03-09',
+                impact_level: 'high',
+                impact_text: '重大影响',
+                impact_text_en: 'High Impact'
+            },
+            {
+                news_id: 'NEWS_003',
+                policy_id: 'POL_SA_20260308_001',
+                country: 'SA',
+                flag: '🇸🇦',
+                title: '沙特 2030 愿景：可再生能源投资 500 亿美元',
+                title_en: 'Saudi Vision 2030: $50B Renewable Energy Investment',
+                summary: '沙特能源部宣布 2030 愿景可再生能源计划，总投资 500 亿美元，目标 40GW 太阳能和 27GW 风能...',
+                summary_en: 'Saudi Ministry of Energy announced Vision 2030 renewable program with $50B investment, targeting 40GW solar and 27GW wind...',
+                agency: '沙特能源部',
+                agency_en: 'Ministry of Energy',
+                publish_date: '2026-03-08',
+                impact_level: 'high',
+                impact_text: '重大影响',
+                impact_text_en: 'High Impact'
+            },
+            {
+                news_id: 'NEWS_004',
+                policy_id: 'POL_DE_20260307_001',
+                country: 'DE',
+                flag: '🇩🇪',
+                title: '德国：2027 年光伏装机目标提升至 215GW',
+                title_en: 'Germany: 2027 Solar Target Raised to 215GW',
+                summary: '德国联邦经济部更新可再生能源目标，2027 年光伏装机目标从 115GW 提升至 215GW...',
+                summary_en: 'German Federal Ministry updated renewable targets, raising 2027 solar target from 115GW to 215GW...',
+                agency: '德国联邦经济部',
+                agency_en: 'Federal Ministry for Economic Affairs',
+                publish_date: '2026-03-07',
+                impact_level: 'medium',
+                impact_text: '中等影响',
+                impact_text_en: 'Medium Impact'
+            },
+            {
+                news_id: 'NEWS_005',
+                policy_id: 'POL_VN_20260306_001',
+                country: 'VN',
+                flag: '🇻🇳',
+                title: '越南：FIT 电价政策延期至 2027 年底',
+                title_en: 'Vietnam: FIT Policy Extended to End of 2027',
+                summary: '越南工贸部宣布 FIT 电价政策延期，地面光伏电价维持 0.0935 美元/kWh 至 2027 年底...',
+                summary_en: 'Vietnam Ministry of Industry and Trade announced FIT policy extension, ground solar tariff maintained at $0.0935/kWh until end of 2027...',
+                agency: '越南工贸部',
+                agency_en: 'Ministry of Industry and Trade',
+                publish_date: '2026-03-06',
+                impact_level: 'medium',
+                impact_text: '中等影响',
+                impact_text_en: 'Medium Impact'
+            }
+        ];
+        
+        // 语言状态
+        let currentLang = 'zh-CN';
+        let currentIndex = 0;
+        let autoPlayTimer;
+        
+        // 检测用户语言
+        function detectLanguage() {
+            const saved = localStorage.getItem('longi_language');
+            if (saved) return saved;
+            
+            const browserLang = navigator.language || navigator.userLanguage;
+            return browserLang.startsWith('zh') ? 'zh-CN' : 'en';
+        }
+        
+        // 设置语言
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('longi_language', lang);
+            document.getElementById('carousel-lang').textContent = lang === 'zh-CN' ? '🇨🇳 中文' : '🇺🇸 English';
+            renderCarousel();
+        }
+        
+        // 获取文本（根据语言）
+        function getText(item, zhKey, enKey) {
+            return currentLang === 'zh-CN' ? item[zhKey] : item[enKey];
+        }
+        
+        // 渲染轮播
+        function renderCarousel() {
+            const content = document.getElementById('carousel-content');
+            const dots = document.getElementById('carousel-dots');
+            
+            content.innerHTML = '';
+            dots.innerHTML = '';
+            
+            newsData.forEach((item, index) => {
+                // 创建轮播项
+                const carouselItem = document.createElement('div');
+                carouselItem.className = `carousel-item ${index === currentIndex ? 'active' : ''}`;
+                carouselItem.onclick = () => window.location.href = `/policy/${item.policy_id}`;
+                
+                carouselItem.innerHTML = `
+                    <div class="item-flag">${item.flag}</div>
+                    <div class="item-content">
+                        <h3>${getText(item, 'title', 'title_en')}</h3>
+                        <p>${getText(item, 'summary', 'summary_en')}</p>
+                        <div class="item-meta">
+                            <span>🏢 ${getText(item, 'agency', 'agency_en')}</span>
+                            <span>📅 ${item.publish_date}</span>
+                            <span class="impact-level impact-${item.impact_level}">
+                                ${getText(item, 'impact_text', 'impact_text_en')}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                content.appendChild(carouselItem);
+                
+                // 创建圆点
+                const dot = document.createElement('span');
+                dot.className = `dot ${index === currentIndex ? 'active' : ''}`;
+                dot.onclick = () => goToSlide(index);
+                dots.appendChild(dot);
+            });
+        }
+        
+        // 切换轮播
+        function goToSlide(index) {
+            currentIndex = index;
+            renderCarousel();
+            resetAutoPlay();
+        }
+        
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % newsData.length;
+            renderCarousel();
+            resetAutoPlay();
+        }
+        
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + newsData.length) % newsData.length;
+            renderCarousel();
+            resetAutoPlay();
+        }
+        
+        // 自动播放
+        function startAutoPlay() {
+            autoPlayTimer = setInterval(() => {
+                currentIndex = (currentIndex + 1) % newsData.length;
+                renderCarousel();
+            }, 5000);
+        }
+        
+        function resetAutoPlay() {
+            clearInterval(autoPlayTimer);
+            startAutoPlay();
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            currentLang = detectLanguage();
+            renderCarousel();
+            startAutoPlay();
+        });
+        
+        // 搜索功能
+        document.querySelector('.search-btn').addEventListener('click', function() {
+            const query = document.querySelector('.search-input').value;
+            if (query) {
+                alert('搜索功能开发中... 搜索关键词：' + query);
+            }
+        });
+        
+        // 回车搜索
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('.search-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>

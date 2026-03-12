@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国区光储电站投资地图 v0.5 - 专业版</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- html2pdf for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 3px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background: #f0f0f0;
+        }
+        
+        .container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+        
+        .sidebar {
+            width: 380px;
+            background: white;
+            border-right: 1px solid #e1e5eb;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        
+        .map-area {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .section h3::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 14px;
+            background: #667eea;
+            border-radius: 2px;
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 3px;
+        }
+        
+        /* 权重滑块 */
+        .weight-slider {
+            margin-bottom: 12px;
+        }
+        
+        .weight-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .weight-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .weight-total {
+            background: #f9fafb;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .weight-total.error {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+        
+        .weight-total.ok {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* 搜索框 */
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 35px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        /* 筛选按钮 */
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .filter-btn {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background: #f5f5f5;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* 省份列表 */
+        .province-list {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            padding-right: 5px;
+        }
+        .province-list::-webkit-scrollbar { width: 6px; }
+        .province-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        .province-list::-webkit-scrollbar-thumb { background: #667eea30; border-radius: 3px; }
+        .province-list::-webkit-scrollbar-thumb:hover { background: #667eea60; }
+        
+        .province-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .province-item:hover {
+            background: #f0f0f0;
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .province-item.selected {
+            background: #667eea15;
+            border-left-color: #667eea;
+        }
+        
+        .province-item.grade-a { border-left-color: #52c41a; }
+        .province-item.grade-b { border-left-color: #1890ff; }
+        .province-item.grade-c { border-left-color: #faad14; }
+        .province-item.grade-d { border-left-color: #ff4d4f; }
+        
+        .province-info {
+            flex: 1;
+        }
+        
+        .province-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .province-score {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .grade-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .province-item:hover .grade-badge { transform: scale(1.05); }
+        .grade-badge {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .grade-a .grade-badge { background: #f6ffed; color: #52c41a; }
+        .grade-b .grade-badge { background: #e6f7ff; color: #1890ff; }
+        .grade-c .grade-badge { background: #fffbe6; color: #faad14; }
+        .grade-d .grade-badge { background: #fff1f0; color: #ff4d4f; }
+        
+        /* 对比面板 */
+        .compare-panel {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .compare-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .compare-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .compare-provinces {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .compare-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .compare-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff4d4f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .compare-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .compare-score {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+        
+        .compare-grade {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        
+        .compare-metrics {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+        
+        .compare-metric {
+            text-align: center;
+        }
+        
+        .compare-metric-label {
+            font-size: 10px;
+            color: #888;
+        }
+        
+        .compare-metric-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* 详情面板 */
+        .detail-panel {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .detail-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn-add-compare {
+            padding: 4px 10px;
+            font-size: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-add-compare:hover {
+            background: #5568d3;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .detail-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .detail-value.highlight {
+            color: #667eea;
+        }
+        
+        .roi-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .roi-section h4 {
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .roi-item {
+            text-align: center;
+        }
+        
+        .roi-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .roi-label {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+        }
+        
+        /* 图例 */
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .legend-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        
+        /* 项目标记样式 */
+        .project-marker {
+            background: white;
+            border-radius: 50%;
+            border: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 项目列表 */
+        .project-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .project-item {
+            padding: 10px;
+            margin-bottom: 6px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .project-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .project-info {
+            font-size: 11px;
+            color: #888;
+        }
+        
+        .project-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 6px;
+        }
+        
+        .status-operating {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .status-construction {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .status-planned {
+            background: #fffbe6;
+            color: #faad14;
+        }
+        /* 📱 移动端适配 */
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px !important; }
+            .header { padding: 15px 20px !important; flex-direction: column !important; gap: 15px !important; }
+            .header h1 { font-size: 20px !important; }
+            .header p { font-size: 12px !important; }
+            .sidebar { width: 100% !important; max-height: 40vh !important; border-right: none !important; border-bottom: 1px solid #e1e5eb !important; }
+            .map-area { height: 60vh !important; }
+            .btn { padding: 8px 12px !important; font-size: 12px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .stat-value { font-size: 18px !important; }
+            .province-list { max-height: 300px !important; }
+            .province-name { font-size: 14px !important; }
+            .grade-badge { padding: 3px 8px !important; font-size: 11px !important; }
+        }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 18px !important; }
+            .header p { font-size: 11px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .header-actions { flex-wrap: wrap !important; justify-content: center !important; }
+            .card { padding: 15px !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>🌞 中国区光储电站投资地图</h1>
+            <p>v0.5 专业版 - 地图 + 对比 + 权重 + PDF</p>
+        </div>
+        <div class="header-actions">
+            <a href="/index.html" class="btn">🏠 首页</a>
+            <button class="btn" onclick="exportData('json')">📊 JSON</button>
+            <button class="btn" onclick="exportData('csv')">📄 CSV</button>
+            <button class="btn btn-primary" onclick="exportPDF()">📑 PDF</button>
+            <button class="btn" onclick="toggleSidebar()">☰ 列表</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <!-- 标签页 -->
+            <div class="tabs">
+                <div class="tab active" data-tab="overview" onclick="switchTab('overview')">📊 概览</div>
+                <div class="tab" data-tab="compare" onclick="switchTab('compare')">⚖️ 对比</div>
+                <div class="tab" data-tab="weights" onclick="switchTab('weights')">⚙️ 权重</div>
+                <div class="tab" data-tab="projects" onclick="switchTab('projects')">⚡ 项目</div>
+            </div>
+            
+            <!-- 概览标签页 -->
+            <div id="tab-overview" class="tab-content active">
+                <!-- 统计 -->
+                <div class="section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-total">30</div>
+                            <div class="stat-label">省份总数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-grade-b">4</div>
+                            <div class="stat-label">B 级推荐</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-grade-c">12</div>
+                            <div class="stat-label">C 级谨慎</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 搜索 -->
+                <div class="section">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" placeholder="搜索省份..." oninput="searchProvince()">
+                    </div>
+                </div>
+                
+                <!-- 筛选 -->
+                <div class="section">
+                    <h3>投资等级筛选</h3>
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-grade="all" onclick="filterGrade('all')">全部</button>
+                        <button class="filter-btn" data-grade="B" onclick="filterGrade('B')">B 级</button>
+                        <button class="filter-btn" data-grade="C" onclick="filterGrade('C')">C 级</button>
+                        <button class="filter-btn" data-grade="D" onclick="filterGrade('D')">D 级</button>
+                    </div>
+                </div>
+                
+                <!-- 省份列表 -->
+                <div class="section">
+                    <h3>省份列表</h3>
+                    <div class="province-list" id="province-list">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 详情面板 -->
+                <div class="section" id="detail-section" style="display: none;">
+                    <div class="detail-panel">
+                        <div class="detail-title">
+                            <span id="detail-province-name">省份名称</span>
+                            <span class="grade-badge" id="detail-grade">B 级</span>
+                        </div>
+                        <button class="btn-add-compare" onclick="addToCompare()" style="width: 100%; margin-bottom: 12px;">
+                            ➕ 加入对比
+                        </button>
+                        
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">总分</div>
+                                <div class="detail-value highlight" id="detail-total-score">75.0</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">资源条件</div>
+                                <div class="detail-value" id="detail-resource">60</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">电价水平</div>
+                                <div class="detail-value" id="detail-price">85</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">政策支持</div>
+                                <div class="detail-value" id="detail-policy">100</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">消纳条件</div>
+                                <div class="detail-value" id="detail-grid">68</div>
+                            </div>
+                        </div>
+                        
+                        <div class="roi-section">
+                            <h4>💰 ROI 估算 (100MW)</h4>
+                            <div class="roi-grid">
+                                <div class="roi-item">
+                                    <div class="roi-value" id="roi-investment">35000</div>
+                                    <div class="roi-label">总投资 (万元)</div>
+                                </div>
+                                <div class="roi-item">
+                                    <div class="roi-value" id="roi-revenue">4031</div>
+                                    <div class="roi-label">年收入 (万元)</div>
+                                </div>
+                                <div class="roi-item">
+                                    <div class="roi-value" id="roi-net">3331</div>
+                                    <div class="roi-label">年净收益 (万元)</div>
+                                </div>
+                                <div class="roi-item">
+                                    <div class="roi-value" id="roi-payback">10.5</div>
+                                    <div class="roi-label">回收期 (年)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 对比标签页 -->
+            <div id="tab-compare" class="tab-content">
+                <div class="section">
+                    <h3>省份对比</h3>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 10px;">
+                        在概览页点击"加入对比"，最多可选择 4 个省份
+                    </p>
+                    
+                    <div class="compare-panel" id="compare-panel">
+                        <p style="text-align: center; color: #999; padding: 20px;">
+                            暂无对比省份<br>
+                            <small>请先在概览页选择省份</small>
+                        </p>
+                    </div>
+                    
+                    <div class="btn-group" style="margin-top: 15px;">
+                        <button class="btn btn-small" onclick="clearCompare()">清空</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 权重标签页 -->
+            <div id="tab-weights" class="tab-content">
+                <div class="section">
+                    <h3>评估权重配置</h3>
+                    
+                    <div class="weight-slider">
+                        <div class="weight-label">
+                            <span>🌤️ 资源条件</span>
+                            <span class="weight-value" id="weight-resource-val">15%</span>
+                        </div>
+                        <input type="range" class="slider" id="weight-resource" min="0" max="50" value="15">
+                    </div>
+                    
+                    <div class="weight-slider">
+                        <div class="weight-label">
+                            <span>💰 电价水平</span>
+                            <span class="weight-value" id="weight-price-val">20%</span>
+                        </div>
+                        <input type="range" class="slider" id="weight-price" min="0" max="50" value="20">
+                    </div>
+                    
+                    <div class="weight-slider">
+                        <div class="weight-label">
+                            <span>📜 政策支持</span>
+                            <span class="weight-value" id="weight-policy-val">15%</span>
+                        </div>
+                        <input type="range" class="slider" id="weight-policy" min="0" max="50" value="15">
+                    </div>
+                    
+                    <div class="weight-slider">
+                        <div class="weight-label">
+                            <span>⚡ 消纳条件</span>
+                            <span class="weight-value" id="weight-grid-val">50%</span>
+                        </div>
+                        <input type="range" class="slider" id="weight-grid" min="20" max="80" value="50">
+                    </div>
+                    
+                    <div class="weight-total ok" id="weight-total">
+                        <span>权重总和：</span>
+                        <strong>100%</strong>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-small btn-primary" onclick="applyWeights()">应用</button>
+                        <button class="btn btn-small" onclick="resetWeights()">重置</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 项目标签页 -->
+            <div id="tab-projects" class="tab-content">
+                <div class="section">
+                    <h3>光储电站项目</h3>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 10px;">
+                        示例项目数据（v0.5 演示）
+                    </p>
+                    
+                    <div class="project-list" id="project-list">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="map-area">
+            <div id="map"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 省份数据
+        const provincesData = [
+            {name:'上海市',abbr:'上海',lat:31.2304,lng:121.4737,annual_hours:1150,benchmark_price:0.4155,peak_valley_spread:0.85,market_rate:0.92,curtailed_rate:1.5,grid_capacity_rate:0.85,policies:{provincial_subsidy:false,city_subsidy:true,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:true},scores:{resource:60,price:85,policy:100,grid:85.0,total:83.5},grade:'B',suggestion:'推荐投资',roi:{total_investment:35000,annual_revenue:4330.05,annual_net:3630.05,payback_years:9.64,irr_approx:10.37}},
+            {name:'浙江省',abbr:'浙江',lat:30.2741,lng:120.1551,annual_hours:1100,benchmark_price:0.4155,peak_valley_spread:0.90,market_rate:0.90,curtailed_rate:2.0,grid_capacity_rate:0.85,policies:{provincial_subsidy:true,city_subsidy:true,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:true},scores:{resource:60,price:85,policy:100,grid:68.0,total:75.0},grade:'B',suggestion:'推荐投资',roi:{total_investment:35000,annual_revenue:4031.18,annual_net:3331.18,payback_years:10.51,irr_approx:9.52}},
+            {name:'广东省',abbr:'广东',lat:23.1291,lng:113.2644,annual_hours:1200,benchmark_price:0.4530,peak_valley_spread:0.85,market_rate:0.90,curtailed_rate:3.0,grid_capacity_rate:0.75,policies:{provincial_subsidy:false,city_subsidy:true,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:100,policy:100,grid:60.0,total:74.0},grade:'B',suggestion:'推荐投资',roi:{total_investment:35000,annual_revenue:4745.63,annual_net:4045.63,payback_years:8.65,irr_approx:11.56}},
+            {name:'北京市',abbr:'北京',lat:39.9042,lng:116.4074,annual_hours:1280,benchmark_price:0.3939,peak_valley_spread:0.80,market_rate:0.90,curtailed_rate:2.0,grid_capacity_rate:0.80,policies:{provincial_subsidy:false,city_subsidy:true,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:true},scores:{resource:60,price:85,policy:100,grid:64.0,total:73.0},grade:'B',suggestion:'推荐投资',roi:{total_investment:35000,annual_revenue:4446.97,annual_net:3746.97,payback_years:9.34,irr_approx:10.71}},
+            {name:'海南省',abbr:'海南',lat:20.0444,lng:110.1999,annual_hours:1250,benchmark_price:0.4298,peak_valley_spread:0.70,market_rate:0.92,curtailed_rate:2.0,grid_capacity_rate:0.80,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:80,policy:85,grid:64.0,total:69.75},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:4843.85,annual_net:4143.85,payback_years:8.45,irr_approx:11.84}},
+            {name:'福建省',abbr:'福建',lat:26.0745,lng:119.2965,annual_hours:1150,benchmark_price:0.3932,peak_valley_spread:0.70,market_rate:0.91,curtailed_rate:2.5,grid_capacity_rate:0.78,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:80,policy:85,grid:62.4,total:68.95},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:4011.97,annual_net:3311.97,payback_years:10.57,irr_approx:9.46}},
+            {name:'天津市',abbr:'天津',lat:39.3434,lng:117.3616,annual_hours:1260,benchmark_price:0.3781,peak_valley_spread:0.75,market_rate:0.88,curtailed_rate:3.0,grid_capacity_rate:0.75,policies:{provincial_subsidy:false,city_subsidy:true,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:100,grid:60.0,total:66.0},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:4066.6,annual_net:3366.6,payback_years:10.4,irr_approx:9.62}},
+            {name:'安徽省',abbr:'安徽',lat:31.8206,lng:117.2272,annual_hours:1200,benchmark_price:0.3716,peak_valley_spread:0.70,market_rate:0.89,curtailed_rate:3.5,grid_capacity_rate:0.72,policies:{provincial_subsidy:true,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:100,grid:57.6,total:64.8},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3829.78,annual_net:3129.78,payback_years:11.18,irr_approx:8.94}},
+            {name:'云南省',abbr:'云南',lat:25.0389,lng:102.7183,annual_hours:1150,benchmark_price:0.3358,peak_valley_spread:0.55,market_rate:0.90,curtailed_rate:2.5,grid_capacity_rate:0.78,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:55,policy:85,grid:62.4,total:63.95},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3388.64,annual_net:2688.64,payback_years:13.02,irr_approx:7.68}},
+            {name:'江西省',abbr:'江西',lat:28.6829,lng:115.8579,annual_hours:1100,benchmark_price:0.3830,peak_valley_spread:0.65,market_rate:0.90,curtailed_rate:3.0,grid_capacity_rate:0.75,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:85,grid:60.0,total:63.75},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3677.95,annual_net:2977.95,payback_years:11.75,irr_approx:8.51}},
+            {name:'湖北省',abbr:'湖北',lat:30.5928,lng:114.3055,annual_hours:1100,benchmark_price:0.3891,peak_valley_spread:0.70,market_rate:0.89,curtailed_rate:3.5,grid_capacity_rate:0.73,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:85,grid:58.4,total:62.95},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3675.96,annual_net:2975.96,payback_years:11.76,irr_approx:8.5}},
+            {name:'广西',abbr:'广西',lat:22.8170,lng:108.3665,annual_hours:1150,benchmark_price:0.3828,peak_valley_spread:0.65,market_rate:0.90,curtailed_rate:3.5,grid_capacity_rate:0.72,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:85,grid:57.6,total:62.55},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3823.31,annual_net:3123.31,payback_years:11.21,irr_approx:8.92}},
+            {name:'四川省',abbr:'四川',lat:30.5728,lng:104.0668,annual_hours:1050,benchmark_price:0.3515,peak_valley_spread:0.60,market_rate:0.90,curtailed_rate:3.0,grid_capacity_rate:0.75,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:40,price:60,policy:85,grid:60.0,total:60.75},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3222.02,annual_net:2522.02,payback_years:13.88,irr_approx:7.21}},
+            {name:'江苏省',abbr:'江苏',lat:32.0603,lng:118.7969,annual_hours:1180,benchmark_price:0.3910,peak_valley_spread:0.75,market_rate:0.88,curtailed_rate:4.0,grid_capacity_rate:0.70,policies:{provincial_subsidy:true,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:100,grid:42.0,total:57.0},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3897.74,annual_net:3197.74,payback_years:10.95,irr_approx:9.14}},
+            {name:'河北省',abbr:'河北',lat:38.0428,lng:114.5149,annual_hours:1300,benchmark_price:0.3644,peak_valley_spread:0.70,market_rate:0.87,curtailed_rate:5.0,grid_capacity_rate:0.65,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:80,price:60,policy:85,grid:39.0,total:56.25},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:3915.3,annual_net:3215.3,payback_years:10.89,irr_approx:9.19}},
+            {name:'陕西省',abbr:'陕西',lat:34.3416,lng:108.9398,annual_hours:1350,benchmark_price:0.3545,peak_valley_spread:0.60,market_rate:0.90,curtailed_rate:5.0,grid_capacity_rate:0.65,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:80,price:60,policy:85,grid:39.0,total:56.25},grade:'C',suggestion:'谨慎投资',roi:{total_investment:35000,annual_revenue:4091.82,annual_net:3391.82,payback_years:10.32,irr_approx:9.69}},
+            {name:'河南省',abbr:'河南',lat:34.7466,lng:113.6253,annual_hours:1250,benchmark_price:0.3695,peak_valley_spread:0.70,market_rate:0.88,curtailed_rate:4.0,grid_capacity_rate:0.70,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:85,grid:42.0,total:54.75},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3901.92,annual_net:3201.92,payback_years:10.93,irr_approx:9.15}},
+            {name:'贵州省',abbr:'贵州',lat:26.6470,lng:106.6302,annual_hours:1100,benchmark_price:0.3586,peak_valley_spread:0.60,market_rate:0.89,curtailed_rate:4.0,grid_capacity_rate:0.70,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:85,grid:42.0,total:54.75},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3370.27,annual_net:2670.27,payback_years:13.11,irr_approx:7.63}},
+            {name:'辽宁省',abbr:'辽宁',lat:41.8057,lng:123.4315,annual_hours:1200,benchmark_price:0.3749,peak_valley_spread:0.65,market_rate:0.88,curtailed_rate:5.0,grid_capacity_rate:0.65,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:85,grid:39.0,total:53.25},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3761.0,annual_net:3061.0,payback_years:11.43,irr_approx:8.75}},
+            {name:'吉林省',abbr:'吉林',lat:43.8171,lng:125.3235,annual_hours:1180,benchmark_price:0.3731,peak_valley_spread:0.60,market_rate:0.88,curtailed_rate:5.5,grid_capacity_rate:0.62,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:60,policy:85,grid:37.2,total:52.35},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3661.19,annual_net:2961.19,payback_years:11.82,irr_approx:8.46}},
+            {name:'湖南省',abbr:'湖南',lat:28.2282,lng:112.9388,annual_hours:1080,benchmark_price:0.3880,peak_valley_spread:0.68,market_rate:0.89,curtailed_rate:4.0,grid_capacity_rate:0.70,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:40,price:60,policy:85,grid:42.0,total:51.75},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3580.28,annual_net:2880.28,payback_years:12.15,irr_approx:8.23}},
+            {name:'重庆市',abbr:'重庆',lat:29.4316,lng:106.9123,annual_hours:1000,benchmark_price:0.3515,peak_valley_spread:0.65,market_rate:0.88,curtailed_rate:4.5,grid_capacity_rate:0.68,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:40,price:60,policy:85,grid:40.8,total:51.15},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:2954.01,annual_net:2254.01,payback_years:15.53,irr_approx:6.44}},
+            {name:'山西省',abbr:'山西',lat:37.8706,lng:112.5489,annual_hours:1320,benchmark_price:0.3320,peak_valley_spread:0.65,market_rate:0.90,curtailed_rate:6.0,grid_capacity_rate:0.60,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:80,price:40,policy:85,grid:24.0,total:44.75},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3707.51,annual_net:3007.51,payback_years:11.64,irr_approx:8.59}},
+            {name:'黑龙江省',abbr:'黑龙江',lat:45.8038,lng:126.5340,annual_hours:1150,benchmark_price:0.3731,peak_valley_spread:0.58,market_rate:0.87,curtailed_rate:6.0,grid_capacity_rate:0.60,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:true,approval_fast:false},scores:{resource:60,price:55,policy:85,grid:24.0,total:44.75},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3508.89,annual_net:2808.89,payback_years:12.46,irr_approx:8.03}},
+            {name:'青海省',abbr:'青海',lat:36.6171,lng:101.7782,annual_hours:1650,benchmark_price:0.3247,peak_valley_spread:0.45,market_rate:0.92,curtailed_rate:6.0,grid_capacity_rate:0.55,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:true,grid_guarantee:false,approval_fast:false},scores:{resource:100,price:35,policy:75,grid:22.0,total:44.25},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:4633.21,annual_net:3933.21,payback_years:8.9,irr_approx:11.24}},
+            {name:'山东省',abbr:'山东',lat:36.6512,lng:117.1209,annual_hours:1280,benchmark_price:0.3949,peak_valley_spread:0.85,market_rate:0.85,curtailed_rate:8.0,grid_capacity_rate:0.60,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:false,grid_guarantee:false,approval_fast:false},scores:{resource:60,price:65,policy:65,grid:24.0,total:43.75},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3952.79,annual_net:3252.79,payback_years:10.76,irr_approx:9.29}},
+            {name:'内蒙古',abbr:'内蒙古',lat:40.8414,lng:111.7519,annual_hours:1450,benchmark_price:0.3020,peak_valley_spread:0.50,market_rate:0.88,curtailed_rate:7.0,grid_capacity_rate:0.55,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:true,grid_guarantee:false,approval_fast:false},scores:{resource:80,price:35,policy:75,grid:22.0,total:41.25},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3583.77,annual_net:2883.77,payback_years:12.14,irr_approx:8.24}},
+            {name:'宁夏',abbr:'宁夏',lat:38.4872,lng:106.2309,annual_hours:1480,benchmark_price:0.3019,peak_valley_spread:0.45,market_rate:0.93,curtailed_rate:8.0,grid_capacity_rate:0.50,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:true,grid_guarantee:false,approval_fast:false},scores:{resource:80,price:35,policy:75,grid:20.0,total:40.25},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3822.92,annual_net:3122.92,payback_years:11.21,irr_approx:8.92}},
+            {name:'甘肃省',abbr:'甘肃',lat:36.0611,lng:103.8343,annual_hours:1550,benchmark_price:0.3078,peak_valley_spread:0.50,market_rate:0.95,curtailed_rate:12.0,grid_capacity_rate:0.45,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:true,grid_guarantee:false,approval_fast:false},scores:{resource:100,price:35,policy:75,grid:9.0,total:37.75},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3988.47,annual_net:3288.47,payback_years:10.64,irr_approx:9.4}},
+            {name:'新疆',abbr:'新疆',lat:43.8256,lng:87.6168,annual_hours:1500,benchmark_price:0.2620,peak_valley_spread:0.40,market_rate:0.90,curtailed_rate:15.0,grid_capacity_rate:0.40,policies:{provincial_subsidy:false,city_subsidy:false,tax_benefit:true,land_benefit:true,grid_guarantee:false,approval_fast:false},scores:{resource:100,price:35,policy:75,grid:4.0,total:35.25},grade:'D',suggestion:'暂不建议',roi:{total_investment:35000,annual_revenue:3006.45,annual_net:2306.45,payback_years:15.17,irr_approx:6.59}}
+        ];
+        
+        // 示例项目数据
+        const projectsData = [
+            {name:'山东德州光伏储能项目',province:'山东省',lat:37.4513,lng:116.3558,capacity_mw:200,status:'operating',developer:'国家电投'},
+            {name:'浙江杭州工商业储能',province:'浙江省',lat:30.2741,lng:120.1551,capacity_mw:50,status:'operating',developer:'宁德时代'},
+            {name:'广东深圳光储一体化',province:'广东省',lat:22.5431,lng:114.0579,capacity_mw:100,status:'construction',developer:'南方电网'},
+            {name:'甘肃酒泉光伏基地',province:'甘肃省',lat:39.7790,lng:98.5168,capacity_mw:500,status:'planned',developer:'华能集团'},
+            {name:'江苏南通储能电站',province:'江苏省',lat:32.0162,lng:120.8942,capacity_mw:80,status:'operating',developer:'国网江苏'},
+            {name:'青海海南州光伏',province:'青海省',lat:36.2800,lng:100.6200,capacity_mw:1000,status:'construction',developer:'国家能源集团'}
+        ];
+        
+        // 全局变量
+        let map;
+        let provinceMarkers = {};
+        let projectMarkers = {};
+        let selectedProvince = null;
+        let currentFilter = 'all';
+        let compareList = [];
+        let currentWeights = { resource: 0.15, price: 0.20, policy: 0.15, grid: 0.50 };
+        
+        // 颜色映射
+        const gradeColors = {
+            'B': { fill: '#1890ff', border: '#096dd9' },
+            'C': { fill: '#faad14', border: '#d48806' },
+            'D': { fill: '#ff4d4f', border: '#cf1322' }
+        };
+        
+        // 初始化地图
+        function initMap() {
+            map = L.map('map').setView([35.8617, 104.1954], 4);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // 添加省份标记
+            provincesData.forEach(province => {
+                addProvinceMarker(province);
+            });
+            
+            // 添加项目标记
+            projectsData.forEach(project => {
+                addProjectMarker(project);
+            });
+            
+            addLegend();
+        }
+        
+        // 添加省份标记
+        function addProvinceMarker(province) {
+            const color = gradeColors[province.grade];
+            
+            const marker = L.circleMarker([province.lat, province.lng], {
+                radius: 10 + (province.scores.total / 100) * 8,
+                fillColor: color.fill,
+                color: color.border,
+                weight: 2,
+                opacity: 0.9,
+                fillOpacity: 0.7
+            }).addTo(map);
+            
+            const popup = L.popup({ maxWidth: 250 });
+            const popupContent = `
+                <div style="font-family: -apple-system, sans-serif;">
+                    <h3 style="margin: 0 0 8px 0; color: #333;">${province.name}</h3>
+                    <div style="display: inline-block; padding: 3px 8px; background: ${color.fill}; color: white; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">
+                        ${province.grade}级 - ${province.suggestion}
+                    </div>
+                    <div style="font-size: 12px; color: #666;">
+                        <div style="margin-bottom: 4px;"><strong>总分:</strong> ${province.scores.total}</div>
+                        <div style="margin-bottom: 4px;"><strong>资源:</strong> ${province.scores.resource} | <strong>电价:</strong> ${province.scores.price}</div>
+                        <div style="margin-bottom: 4px;"><strong>政策:</strong> ${province.scores.policy} | <strong>消纳:</strong> ${province.scores.grid}</div>
+                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                            <strong>💰 ROI:</strong> ${province.roi.payback_years.toFixed(1)}年回收
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            popup.setContent(popupContent);
+            marker.bindPopup(popup);
+            marker.on('click', () => selectProvince(province.name));
+            provinceMarkers[province.name] = marker;
+        }
+        
+        // 添加项目标记
+        function addProjectMarker(project) {
+            const statusColors = {
+                'operating': '#52c41a',
+                'construction': '#1890ff',
+                'planned': '#faad14'
+            };
+            
+            const marker = L.circleMarker([project.lat, project.lng], {
+                radius: 8,
+                fillColor: statusColors[project.status],
+                color: 'white',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.9
+            }).addTo(map);
+            
+            const statusText = {
+                'operating': '运行中',
+                'construction': '建设中',
+                'planned': '规划中'
+            };
+            
+            const popup = L.popup({ maxWidth: 200 });
+            popup.setContent(`
+                <div style="font-family: -apple-system, sans-serif;">
+                    <h4 style="margin: 0 0 6px 0; color: #333;">${project.name}</h4>
+                    <div style="font-size: 12px; color: #666;">
+                        <div><strong>省份:</strong> ${project.province}</div>
+                        <div><strong>规模:</strong> ${project.capacity_mw}MW</div>
+                        <div><strong>状态:</strong> <span style="color: ${statusColors[project.status]};">${statusText[project.status]}</span></div>
+                        <div><strong>开发商:</strong> ${project.developer}</div>
+                    </div>
+                </div>
+            `);
+            
+            marker.bindPopup(popup);
+            projectMarkers[project.name] = marker;
+        }
+        
+        // 添加图例
+        function addLegend() {
+            const legend = L.control({ position: 'bottomright' });
+            legend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = `
+                    <div class="legend-title">投资等级</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #1890ff;"></div><span>B 级 - 推荐投资</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #faad14;"></div><span>C 级 - 谨慎投资</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #ff4d4f;"></div><span>D 级 - 暂不建议</span></div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                        <div class="legend-title">项目状态</div>
+                        <div class="legend-item"><div class="legend-color" style="background: #52c41a;"></div><span>运行中</span></div>
+                        <div class="legend-item"><div class="legend-color" style="background: #1890ff;"></div><span>建设中</span></div>
+                        <div class="legend-item"><div class="legend-color" style="background: #faad14;"></div><span>规划中</span></div>
+                    </div>
+                `;
+                return div;
+            };
+            legend.addTo(map);
+        }
+        
+        // 切换标签页
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+        
+        // 选择省份
+        function selectProvince(name) {
+            selectedProvince = name;
+            const province = provincesData.find(p => p.name === name);
+            
+            document.querySelectorAll('.province-item').forEach(item => {
+                item.classList.remove('selected');
+                if (item.dataset.name === name) {
+                    item.classList.add('selected');
+                }
+            });
+            
+            if (province && provinceMarkers[name]) {
+                map.flyTo([province.lat, province.lng], 6, { duration: 1.5 });
+                provinceMarkers[name].openPopup();
+            }
+            
+            showDetail(province);
+        }
+        
+        // 显示详情
+        function showDetail(province) {
+            const section = document.getElementById('detail-section');
+            section.style.display = 'block';
+            
+            document.getElementById('detail-province-name').textContent = province.name;
+            document.getElementById('detail-grade').textContent = province.grade + '级';
+            document.getElementById('detail-total-score').textContent = province.scores.total.toFixed(1);
+            document.getElementById('detail-resource').textContent = province.scores.resource;
+            document.getElementById('detail-price').textContent = province.scores.price;
+            document.getElementById('detail-policy').textContent = province.scores.policy;
+            document.getElementById('detail-grid').textContent = province.scores.grid.toFixed(0);
+            
+            document.getElementById('roi-investment').textContent = Math.round(province.roi.total_investment).toLocaleString();
+            document.getElementById('roi-revenue').textContent = Math.round(province.roi.annual_revenue).toLocaleString();
+            document.getElementById('roi-net').textContent = Math.round(province.roi.annual_net).toLocaleString();
+            document.getElementById('roi-payback').textContent = province.roi.payback_years.toFixed(1);
+            
+            section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // 渲染省份列表
+        function renderProvinceList(filter = 'all') {
+            const container = document.getElementById('province-list');
+            container.innerHTML = '';
+            
+            const filtered = filter === 'all' ? provincesData : provincesData.filter(p => p.grade === filter);
+            filtered.sort((a, b) => b.scores.total - a.scores.total);
+            
+            filtered.forEach((province, index) => {
+                const item = document.createElement('div');
+                item.className = `province-item grade-${province.grade.toLowerCase()}${selectedProvince === province.name ? ' selected' : ''}`;
+                item.dataset.name = province.name;
+                item.onclick = () => selectProvince(province.name);
+                
+                item.innerHTML = `
+                    <div class="province-info">
+                        <div class="province-name">${index + 1}. ${province.name}</div>
+                        <div class="province-score">总分：${province.scores.total.toFixed(1)}</div>
+                    </div>
+                    <span class="grade-badge">${province.grade}级</span>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // 筛选等级
+        function filterGrade(grade) {
+            currentFilter = grade;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.grade === grade) btn.classList.add('active');
+            });
+            renderProvinceList(grade);
+            
+            Object.keys(provinceMarkers).forEach(name => {
+                const province = provincesData.find(p => p.name === name);
+                if (grade === 'all' || province.grade === grade) {
+                    provinceMarkers[name].addTo(map);
+                } else {
+                    map.removeLayer(provinceMarkers[name]);
+                }
+            });
+        }
+        
+        // 搜索省份
+        function searchProvince() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            if (!query) {
+                renderProvinceList(currentFilter);
+                return;
+            }
+            
+            const filtered = provincesData.filter(p => p.name.toLowerCase().includes(query) || p.abbr.toLowerCase().includes(query));
+            const container = document.getElementById('province-list');
+            container.innerHTML = '';
+            
+            filtered.forEach((province, index) => {
+                const item = document.createElement('div');
+                item.className = `province-item grade-${province.grade.toLowerCase()}${selectedProvince === province.name ? ' selected' : ''}`;
+                item.dataset.name = province.name;
+                item.onclick = () => selectProvince(province.name);
+                
+                item.innerHTML = `
+                    <div class="province-info">
+                        <div class="province-name">${index + 1}. ${province.name}</div>
+                        <div class="province-score">总分：${province.scores.total.toFixed(1)}</div>
+                    </div>
+                    <span class="grade-badge">${province.grade}级</span>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // 加入对比
+        function addToCompare() {
+            if (!selectedProvince) return;
+            if (compareList.length >= 4) {
+                alert('最多对比 4 个省份');
+                return;
+            }
+            if (compareList.includes(selectedProvince)) {
+                alert('该省份已在对比中');
+                return;
+            }
+            
+            compareList.push(selectedProvince);
+            renderCompare();
+            switchTab('compare');
+        }
+        
+        // 渲染对比
+        function renderCompare() {
+            const panel = document.getElementById('compare-panel');
+            
+            if (compareList.length === 0) {
+                panel.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">暂无对比省份<br><small>请先在概览页选择省份</small></p>';
+                return;
+            }
+            
+            let html = '<div class="compare-provinces">';
+            compareList.forEach(name => {
+                const province = provincesData.find(p => p.name === name);
+                const color = gradeColors[province.grade];
+                
+                html += `
+                    <div class="compare-item">
+                        <button class="compare-remove" onclick="removeFromCompare('${name}')">×</button>
+                        <div class="compare-name">${province.name}</div>
+                        <div class="compare-score">${province.scores.total.toFixed(1)}</div>
+                        <span class="compare-grade" style="background: ${color.fill}; color: white;">${province.grade}级</span>
+                        <div class="compare-metrics">
+                            <div class="compare-metric">
+                                <div class="compare-metric-label">资源</div>
+                                <div class="compare-metric-value">${province.scores.resource}</div>
+                            </div>
+                            <div class="compare-metric">
+                                <div class="compare-metric-label">电价</div>
+                                <div class="compare-metric-value">${province.scores.price}</div>
+                            </div>
+                            <div class="compare-metric">
+                                <div class="compare-metric-label">政策</div>
+                                <div class="compare-metric-value">${province.scores.policy}</div>
+                            </div>
+                            <div class="compare-metric">
+                                <div class="compare-metric-label">消纳</div>
+                                <div class="compare-metric-value">${province.scores.grid.toFixed(0)}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 11px; color: #888;">
+                            回收期：<strong style="color: #667eea;">${province.roi.payback_years.toFixed(1)}年</strong>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            panel.innerHTML = html;
+        }
+        
+        // 从对比中移除
+        function removeFromCompare(name) {
+            compareList = compareList.filter(n => n !== name);
+            renderCompare();
+        }
+        
+        // 清空对比
+        function clearCompare() {
+            compareList = [];
+            renderCompare();
+        }
+        
+        // 更新权重显示
+        function updateWeightDisplays() {
+            ['resource', 'price', 'policy', 'grid'].forEach(type => {
+                document.getElementById(`weight-${type}-val`).textContent = document.getElementById(`weight-${type}`).value + '%';
+            });
+            
+            const total = parseInt(document.getElementById('weight-resource').value) +
+                         parseInt(document.getElementById('weight-price').value) +
+                         parseInt(document.getElementById('weight-policy').value) +
+                         parseInt(document.getElementById('weight-grid').value);
+            
+            const totalEl = document.getElementById('weight-total');
+            totalEl.innerHTML = `<span>权重总和：</span><strong>${total}%</strong>`;
+            totalEl.className = `weight-total ${total === 100 ? 'ok' : 'error'}`;
+        }
+        
+        // 应用权重
+        function applyWeights() {
+            const total = parseInt(document.getElementById('weight-resource').value) +
+                         parseInt(document.getElementById('weight-price').value) +
+                         parseInt(document.getElementById('weight-policy').value) +
+                         parseInt(document.getElementById('weight-grid').value);
+            
+            if (total !== 100) {
+                alert('权重总和必须为 100%！');
+                return;
+            }
+            
+            currentWeights = {
+                resource: parseInt(document.getElementById('weight-resource').value) / 100,
+                price: parseInt(document.getElementById('weight-price').value) / 100,
+                policy: parseInt(document.getElementById('weight-policy').value) / 100,
+                grid: parseInt(document.getElementById('weight-grid').value) / 100
+            };
+            
+            // 重新计算所有省份得分
+            recalculateAll();
+            alert('权重已应用，评分已更新');
+        }
+        
+        // 重新计算所有省份
+        function recalculateAll() {
+            provincesData.forEach(province => {
+                const resourceScore = province.scores.resource;
+                const priceScore = province.scores.price;
+                const policyScore = province.scores.policy;
+                const gridScore = province.scores.grid;
+                
+                const total = (
+                    resourceScore * currentWeights.resource +
+                    priceScore * currentWeights.price +
+                    policyScore * currentWeights.policy +
+                    gridScore * currentWeights.grid
+                );
+                
+                province.scores.total = total;
+                
+                if (total >= 85) { province.grade = 'A'; province.suggestion = '优先投资'; }
+                else if (total >= 70) { province.grade = 'B'; province.suggestion = '推荐投资'; }
+                else if (total >= 55) { province.grade = 'C'; province.suggestion = '谨慎投资'; }
+                else { province.grade = 'D'; province.suggestion = '暂不建议'; }
+            });
+            
+            // 重新渲染
+            renderProvinceList(currentFilter);
+            
+            // 更新地图标记
+            Object.keys(provinceMarkers).forEach(name => {
+                map.removeLayer(provinceMarkers[name]);
+            });
+            provincesData.forEach(province => {
+                addProvinceMarker(province);
+            });
+            
+            // 更新统计
+            updateStats();
+        }
+        
+        // 重置权重
+        function resetWeights() {
+            document.getElementById('weight-resource').value = 15;
+            document.getElementById('weight-price').value = 20;
+            document.getElementById('weight-policy').value = 15;
+            document.getElementById('weight-grid').value = 50;
+            updateWeightDisplays();
+        }
+        
+        // 更新统计
+        function updateStats() {
+            document.getElementById('stat-total').textContent = provincesData.length;
+            document.getElementById('stat-grade-b').textContent = provincesData.filter(p => p.grade === 'B').length;
+            document.getElementById('stat-grade-c').textContent = provincesData.filter(p => p.grade === 'C').length;
+        }
+        
+        // 切换侧边栏
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // 导出数据
+        function exportData(format) {
+            let content, filename, mimeType;
+            
+            if (format === 'json') {
+                content = JSON.stringify({ generated_at: new Date().toISOString(), version: 'v0.5', data: provincesData }, null, 2);
+                filename = 'china-solar-storage-provinces.json';
+                mimeType = 'application/json';
+            } else {
+                const headers = ['省份','等级','总分','资源','电价','政策','消纳','投资 (万元)','年收入 (万元)','年净收益 (万元)','回收期 (年)','IRR (%)'];
+                const rows = provincesData.map(p => [p.name,p.grade,p.scores.total.toFixed(1),p.scores.resource,p.scores.price,p.scores.policy,p.scores.grid.toFixed(0),p.roi.total_investment,p.roi.annual_revenue.toFixed(2),p.roi.annual_net.toFixed(2),p.roi.payback_years.toFixed(2),p.roi.irr_approx.toFixed(2)]);
+                content = [headers, ...rows].map(row => row.join(',')).join('\n');
+                filename = 'china-solar-storage-provinces.csv';
+                mimeType = 'text/csv';
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // 导出 PDF
+        function exportPDF() {
+            const element = document.getElementById('sidebar');
+            const opt = {
+                margin: 10,
+                filename: 'china-solar-storage-report.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            if (typeof html2pdf !== 'undefined') {
+                html2pdf().set(opt).from(element).save();
+            } else {
+                alert('PDF 导出库加载失败，请检查网络连接');
+            }
+        }
+        
+        // 渲染项目列表
+        function renderProjectList() {
+            const container = document.getElementById('project-list');
+            const statusText = { 'operating': '运行中', 'construction': '建设中', 'planned': '规划中' };
+            const statusClass = { 'operating': 'status-operating', 'construction': 'status-construction', 'planned': 'status-planned' };
+            
+            projectsData.forEach(project => {
+                const item = document.createElement('div');
+                item.className = 'project-item';
+                item.innerHTML = `
+                    <div class="project-name">
+                        ${project.name}
+                        <span class="project-status ${statusClass[project.status]}">${statusText[project.status]}</span>
+                    </div>
+                    <div class="project-info">
+                        📍 ${project.province} | ⚡ ${project.capacity_mw}MW | 🏢 ${project.developer}
+                    </div>
+                `;
+                item.onclick = () => {
+                    map.flyTo([project.lat, project.lng], 7);
+                    projectMarkers[project.name].openPopup();
+                };
+                container.appendChild(item);
+            });
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            renderProvinceList();
+            renderProjectList();
+            updateStats();
+            updateWeightDisplays();
+            
+            ['resource', 'price', 'policy', 'grid'].forEach(type => {
+                document.getElementById(`weight-${type}`).addEventListener('input', updateWeightDisplays);
+            });
+        });
+    </script>
+</body>
+</html>

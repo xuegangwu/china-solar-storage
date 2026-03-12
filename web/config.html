@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ 投资地图参数配置</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #da251d 0%, #ffcd3c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 40px; }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #da251d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title .icon { font-size: 24px; }
+        .desc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: #555;
+        }
+        .desc h4 { color: #da251d; margin-bottom: 10px; }
+        .desc ul { margin-left: 20px; margin-top: 10px; }
+        .desc li { margin-bottom: 5px; }
+        .weight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .weight-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        .weight-card:hover {
+            border-color: #da251d;
+            box-shadow: 0 4px 12px rgba(218, 37, 29, 0.15);
+        }
+        .weight-card.active {
+            border-color: #da251d;
+            background: #da251d10;
+        }
+        .weight-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .weight-label .emoji { font-size: 18px; }
+        .weight-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .weight-input:focus {
+            outline: none;
+            border-color: #da251d;
+        }
+        .weight-desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+        .total-bar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .total-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .total-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #da251d;
+        }
+        .total-value.error { color: #ff4d4f; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #da251d 0%, #ffcd3c 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .formula-box {
+            background: #2d3748;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: "Courier New", monospace;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        .formula-box h4 {
+            color: #ffcd3c;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+        .formula-code {
+            line-height: 1.8;
+            font-size: 13px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #da251d 0%, #ffcd3c 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(218, 37, 29, 0.3);
+        }
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e9ecef;
+        }
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert.show { display: block; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #da251d;
+        }
+        .info-card h4 {
+            color: #da251d;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .info-card p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .saving {
+            animation: pulse 1.5s infinite;
+        }
+        /* 📱 移动端适配 */
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px !important; }
+            .header { padding: 15px 20px !important; flex-direction: column !important; gap: 15px !important; }
+            .header h1 { font-size: 20px !important; }
+            .header p { font-size: 12px !important; }
+            .sidebar { width: 100% !important; max-height: 40vh !important; border-right: none !important; border-bottom: 1px solid #e1e5eb !important; }
+            .map-area { height: 60vh !important; }
+            .btn { padding: 8px 12px !important; font-size: 12px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .stat-value { font-size: 18px !important; }
+            .province-list { max-height: 300px !important; }
+            .province-name { font-size: 14px !important; }
+            .grade-badge { padding: 3px 8px !important; font-size: 11px !important; }
+        }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 18px !important; }
+            .header p { font-size: 11px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .header-actions { flex-wrap: wrap !important; justify-content: center !important; }
+            .card { padding: 15px !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>⚙️ 投资地图参数配置</h1>
+                <p>Investment Map Parameters Configuration</p>
+            </div>
+            <div style="margin-top: 15px;">
+                <a href="/index.html" class="btn" style="padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; text-decoration: none; display: inline-block;">🏠 返回首页</a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- 说明部分 -->
+            <div class="section">
+                <h2 class="section-title"><span class="icon">📖</span> 评分机制说明</h2>
+                <div class="desc">
+                    <h4>🎯 投资地图评分原理</h4>
+                    <p>投资地图采用多维度加权评分系统，对每个省份的光储电站投资价值进行综合评估。</p>
+                    <ul>
+                        <li><strong>资源禀赋</strong>：光照资源、年利用小时数</li>
+                        <li><strong>电价政策</strong>：燃煤基准价、峰谷价差</li>
+                        <li><strong>市场条件</strong>：市场化交易比例、消纳能力</li>
+                        <li><strong>电网条件</strong>：电网接入能力、消纳空间</li>
+                    </ul>
+                    <p style="margin-top: 15px;">综合得分 = 资源得分 × 权重 + 电价得分 × 权重 + 市场得分 × 权重 + 电网得分 × 权重</p>
+                </div>
+            </div>
+
+            <!-- 权重配置 -->
+            <div class="section">
+                <h2 class="section-title"><span class="icon">⚖️</span> 权重配置</h2>
+                <div class="total-bar">
+                    <div class="total-label">
+                        <span>权重总和</span>
+                        <span class="total-value" id="total-weight">100%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 100%;">100%</div>
+                    </div>
+                </div>
+
+                <div class="weight-grid">
+                    <div class="weight-card active">
+                        <div class="weight-label">
+                            <span class="emoji">☀️</span>
+                            资源禀赋权重
+                        </div>
+                        <input type="number" class="weight-input" id="weight-resource" value="25" min="0" max="100">
+                        <div class="weight-desc">光照资源、年利用小时数</div>
+                    </div>
+
+                    <div class="weight-card">
+                        <div class="weight-label">
+                            <span class="emoji">💰</span>
+                            电价政策权重
+                        </div>
+                        <input type="number" class="weight-input" id="weight-price" value="25" min="0" max="100">
+                        <div class="weight-desc">燃煤基准价、峰谷价差</div>
+                    </div>
+
+                    <div class="weight-card">
+                        <div class="weight-label">
+                            <span class="emoji">📈</span>
+                            市场条件权重
+                        </div>
+                        <input type="number" class="weight-input" id="weight-market" value="25" min="0" max="100">
+                        <div class="weight-desc">市场化比例、消纳能力</div>
+                    </div>
+
+                    <div class="weight-card">
+                        <div class="weight-label">
+                            <span class="emoji">⚡</span>
+                            电网条件权重
+                        </div>
+                        <input type="number" class="weight-input" id="weight-grid" value="25" min="0" max="100">
+                        <div class="weight-desc">电网接入、消纳空间</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评分公式 -->
+            <div class="section">
+                <h2 class="section-title"><span class="icon">🧮</span> 评分公式</h2>
+                <div class="formula-box">
+                    <h4>📐 综合得分计算公式</h4>
+                    <div class="formula-code">
+Total Score = Resource × W₁ + Price × W₂ + Market × W₃ + Grid × W₄<br><br>
+其中：<br>
+• Resource = 资源禀赋得分 (0-100)<br>
+• Price = 电价政策得分 (0-100)<br>
+• Market = 市场条件得分 (0-100)<br>
+• Grid = 电网条件得分 (0-100)<br>
+• W₁ + W₂ + W₃ + W₄ = 100%
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>🏆 投资等级划分</h4>
+                        <p><strong>A 级 (优先投资)</strong>: 总分 ≥ 80<br>
+                        <strong>B 级 (推荐投资)</strong>: 70 ≤ 总分 < 80<br>
+                        <strong>C 级 (谨慎投资)</strong>: 60 ≤ 总分 < 70<br>
+                        <strong>D 级 (暂不建议)</strong>: 总分 < 60</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>📊 数据来源</h4>
+                        <p>• 光照资源：NASA 气象数据<br>
+                        • 电价政策：各省发改委文件<br>
+                        • 市场数据：电力交易中心<br>
+                        • 电网数据：国家电网公开数据</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="alert alert-success" id="alert-success">
+                ✅ 参数保存成功！投资地图将自动更新。
+            </div>
+            <div class="alert alert-error" id="alert-error">
+                ❌ 保存失败，请检查网络连接。
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="resetWeights()">
+                    🔄 重置默认值
+                </button>
+                <button class="btn btn-primary" id="save-btn" onclick="saveWeights()">
+                    💾 保存配置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let token = localStorage.getItem('token');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            updateTotal();
+        });
+
+        // 加载设置
+        async function loadSettings() {
+            try {
+                const response = await fetch(`${API_BASE}/settings`);
+                const data = await response.json();
+                
+                if (data.settings) {
+                    const s = data.settings;
+                    if (s.weight_resource) document.getElementById('weight-resource').value = s.weight_resource.value;
+                    if (s.weight_price) document.getElementById('weight-price').value = s.weight_price.value;
+                    if (s.weight_market) document.getElementById('weight-market').value = s.weight_market.value;
+                    if (s.weight_grid) document.getElementById('weight-grid').value = s.weight_grid.value;
+                }
+                
+                updateTotal();
+            } catch (err) {
+                console.error('加载设置失败:', err);
+            }
+        }
+
+        // 更新权重总和
+        function updateTotal() {
+            const w1 = parseInt(document.getElementById('weight-resource').value) || 0;
+            const w2 = parseInt(document.getElementById('weight-price').value) || 0;
+            const w3 = parseInt(document.getElementById('weight-market').value) || 0;
+            const w4 = parseInt(document.getElementById('weight-grid').value) || 0;
+            
+            const total = w1 + w2 + w3 + w4;
+            const totalEl = document.getElementById('total-weight');
+            const progressEl = document.getElementById('progress-fill');
+            
+            totalEl.textContent = `${total}%`;
+            progressEl.style.width = `${Math.min(total, 100)}%`;
+            progressEl.textContent = `${total}%`;
+            
+            if (total !== 100) {
+                totalEl.classList.add('error');
+                progressEl.style.background = total > 100 ? '#ff4d4f' : '#ffa726';
+            } else {
+                totalEl.classList.remove('error');
+                progressEl.style.background = 'linear-gradient(90deg, #da251d 0%, #ffcd3c 100%)';
+            }
+            
+            document.getElementById('save-btn').disabled = total !== 100;
+        }
+
+        // 监听输入变化
+        document.querySelectorAll('.weight-input').forEach(input => {
+            input.addEventListener('input', updateTotal);
+        });
+
+        // 保存配置
+        async function saveWeights() {
+            const total = parseInt(document.getElementById('total-weight').textContent);
+            if (total !== 100) {
+                showAlert('error', '权重总和必须为 100%！');
+                return;
+            }
+
+            const btn = document.getElementById('save-btn');
+            btn.classList.add('saving');
+            btn.textContent = '⏳ 保存中...';
+
+            const settings = {
+                weight_resource: document.getElementById('weight-resource').value,
+                weight_price: document.getElementById('weight-price').value,
+                weight_market: document.getElementById('weight-market').value,
+                weight_grid: document.getElementById('weight-grid').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/settings/batch`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                if (response.ok) {
+                    showAlert('success', '参数保存成功！投资地图将自动更新。');
+                    setTimeout(() => {
+                        window.location.href = '/map-v1.0.html';
+                    }, 2000);
+                } else {
+                    showAlert('error', '保存失败，请检查网络连接。');
+                }
+            } catch (err) {
+                console.error('保存失败:', err);
+                showAlert('error', '保存失败，请检查网络连接。');
+            } finally {
+                btn.classList.remove('saving');
+                btn.textContent = '💾 保存配置';
+            }
+        }
+
+        // 重置默认值
+        function resetWeights() {
+            document.getElementById('weight-resource').value = 25;
+            document.getElementById('weight-price').value = 25;
+            document.getElementById('weight-market').value = 25;
+            document.getElementById('weight-grid').value = 25;
+            updateTotal();
+        }
+
+        // 显示提示
+        function showAlert(type, message) {
+            const successEl = document.getElementById('alert-success');
+            const errorEl = document.getElementById('alert-error');
+            
+            successEl.classList.remove('show');
+            errorEl.classList.remove('show');
+            
+            if (type === 'success') {
+                successEl.textContent = `✅ ${message}`;
+                successEl.classList.add('show');
+            } else {
+                errorEl.textContent = `❌ ${message}`;
+                errorEl.classList.add('show');
+            }
+            
+            setTimeout(() => {
+                successEl.classList.remove('show');
+                errorEl.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

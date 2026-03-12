@@ -1,0 +1,144 @@
+/* 📱 通用移动端适配 CSS */
+
+/* 平板和手机适配 (max-width: 768px) */
+@media (max-width: 768px) {
+    /* 容器调整 */
+    .container {
+        padding: 20px 15px !important;
+    }
+    
+    /* Header 调整 */
+    .header {
+        padding: 15px 20px !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    
+    .header h1 {
+        font-size: 20px !important;
+    }
+    
+    .header p {
+        font-size: 12px !important;
+    }
+    
+    /* Sidebar 调整 - 改为底部或隐藏 */
+    .sidebar {
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: 40vh !important;
+        border-right: none !important;
+        border-bottom: 1px solid #e1e5eb !important;
+    }
+    
+    /* 地图区域调整 */
+    .map-area {
+        height: 60vh !important;
+    }
+    
+    /* 按钮调整 */
+    .btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    /* 统计卡片调整 */
+    .stats-grid, .stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+    
+    .stat-card {
+        padding: 10px !important;
+    }
+    
+    .stat-value {
+        font-size: 18px !important;
+    }
+    
+    .stat-label {
+        font-size: 10px !important;
+    }
+    
+    /* 省份列表调整 */
+    .province-list {
+        max-height: 300px !important;
+    }
+    
+    .province-item {
+        padding: 10px 12px !important;
+    }
+    
+    .province-name {
+        font-size: 14px !important;
+    }
+    
+    .province-score {
+        font-size: 12px !important;
+    }
+    
+    .grade-badge {
+        padding: 3px 8px !important;
+        font-size: 11px !important;
+    }
+}
+
+/* 小屏手机适配 (max-width: 480px) */
+@media (max-width: 480px) {
+    /* 字体进一步缩小 */
+    .header h1 {
+        font-size: 18px !important;
+    }
+    
+    .header p {
+        font-size: 11px !important;
+    }
+    
+    /* 统计卡片单列显示 */
+    .stats-grid, .stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    /* 按钮堆叠 */
+    .header-actions {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+    
+    .header-actions .btn {
+        margin: 2px !important;
+    }
+    
+    /* 卡片内容调整 */
+    .card {
+        padding: 15px !important;
+    }
+    
+    .card-title {
+        font-size: 16px !important;
+    }
+    
+    .card-desc {
+        font-size: 12px !important;
+    }
+    
+    .card-features {
+        font-size: 11px !important;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .sidebar {
+        max-height: 150px !important;
+    }
+    
+    .map-area {
+        height: calc(100vh - 150px) !important;
+    }
+    
+    .province-list {
+        max-height: 100px !important;
+    }
+}

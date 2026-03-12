@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>东南亚 & 日本政策 - 光储龙虾</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #f5f7fa; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%); color: white; padding: 30px; border-radius: 16px; margin-bottom: 30px; text-align: center; }
+        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+        .stat-value { font-size: 36px; font-weight: 700; color: #667eea; }
+        .stat-label { font-size: 14px; color: #666; margin-top: 5px; }
+        .country-section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .country-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+        .country-flag { font-size: 40px; }
+        .country-title { font-size: 24px; font-weight: 600; }
+        .country-count { background: #667eea; color: white; padding: 6px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+        .policy-item { padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 15px; transition: all 0.2s; }
+        .policy-item:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); transform: translateX(5px); }
+        .policy-title { font-size: 16px; font-weight: 600; color: #1e3a8a; margin-bottom: 10px; }
+        .policy-meta { display: flex; gap: 20px; font-size: 13px; color: #666; margin-bottom: 10px; }
+        .policy-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .badge-high { background: #fef2f2; color: #dc2626; }
+        .badge-medium { background: #fffbeb; color: #d97706; }
+        .back-btn { display: inline-block; margin-bottom: 20px; padding: 12px 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/longi.html" class="back-btn">← 返回光储龙虾</a>
+        
+        <div class="header">
+            <h1>🌏 东南亚 & 日本政策库</h1>
+            <p>光储龙虾·全球政策采集系统 · 2026-03-11</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-policies">0</div>
+                <div class="stat-label">总政策数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-countries">0</div>
+                <div class="stat-label">覆盖国家</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="sea-policies">0</div>
+                <div class="stat-label">东南亚政策</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">8</div>
+                <div class="stat-label">日本政策</div>
+            </div>
+        </div>
+        
+        <div id="country-sections"></div>
+    </div>
+    
+    <script>
+        const policies = [
+            // 越南
+            {country:'VN',flag:'🇻🇳',title:'越南工贸部：FIT 电价政策延期至 2027 年底',date:'2026-03-06',agency:'越南工贸部',impact:'high'},
+            {country:'VN',flag:'🇻🇳',title:'越南第八版电力规划：2030 年太阳能目标 18GW',date:'2026-03-02',agency:'越南工贸部',impact:'high'},
+            {country:'VN',flag:'🇻🇳',title:'越南：屋顶太阳能净计量政策实施细则',date:'2026-02-28',agency:'越南工贸部',impact:'medium'},
+            // 泰国
+            {country:'TH',flag:'🇹🇭',title:'泰国：2026-2037 新能源发展计划发布',date:'2026-03-05',agency:'泰国能源政策办公室',impact:'high'},
+            {country:'TH',flag:'🇹🇭',title:'泰国：太阳能上网电价补贴 0.08 美元/kWh',date:'2026-03-01',agency:'泰国能源政策办公室',impact:'high'},
+            {country:'TH',flag:'🇹🇭',title:'泰国投资促进委员会：太阳能项目税收优惠',date:'2026-02-25',agency:'BOI',impact:'medium'},
+            // 印尼
+            {country:'ID',flag:'🇮🇩',title:'印尼：2026 年可再生能源装机目标 20GW',date:'2026-03-04',agency:'印尼能源部',impact:'high'},
+            {country:'ID',flag:'🇮🇩',title:'印尼：屋顶太阳能出口电价新规',date:'2026-02-28',agency:'印尼能源部',impact:'medium'},
+            {country:'ID',flag:'🇮🇩',title:'印尼：PLN 购电协议标准化模板发布',date:'2026-02-20',agency:'PLN',impact:'medium'},
+            // 马来西亚
+            {country:'MY',flag:'🇲🇾',title:'马来西亚：2026 年大型太阳能招标启动',date:'2026-03-03',agency:'马来西亚能源委员会',impact:'medium'},
+            {country:'MY',flag:'🇲🇾',title:'马来西亚：净能源计量 3.0 延期申请',date:'2026-02-26',agency:'马来西亚能源委员会',impact:'medium'},
+            // 菲律宾
+            {country:'PH',flag:'🇵🇭',title:'菲律宾：可再生能源法实施细则更新',date:'2026-03-01',agency:'菲律宾能源部',impact:'high'},
+            {country:'PH',flag:'🇵🇭',title:'菲律宾：绿色能源选项计划启动',date:'2026-02-22',agency:'菲律宾能源部',impact:'medium'},
+            // 日本
+            {country:'JP',flag:'🇯🇵',title:'日本经产省：2030 年可再生能源目标提升至 36-38%',date:'2026-03-07',agency:'日本经产省',impact:'high'},
+            {country:'JP',flag:'🇯🇵',title:'日本：FIT 制度向 FIP 制度过渡细则发布',date:'2026-03-04',agency:'日本经产省',impact:'high'},
+            {country:'JP',flag:'🇯🇵',title:'日本：海上风电促进法实施细则',date:'2026-03-01',agency:'日本经产省',impact:'medium'},
+            {country:'JP',flag:'🇯🇵',title:'日本：储能系统补贴计划 2026 年度预算',date:'2026-02-28',agency:'日本经产省',impact:'medium'},
+            {country:'JP',flag:'🇯🇵',title:'日本：绿色转型投资促进税收优惠',date:'2026-02-25',agency:'日本经产省',impact:'high'},
+            {country:'JP',flag:'🇯🇵',title:'日本：氢能基本战略更新',date:'2026-02-20',agency:'日本经产省',impact:'high'},
+            {country:'JP',flag:'🇯🇵',title:'日本：环境省发布 2050 碳中和路线图',date:'2026-02-18',agency:'日本环境省',impact:'high'},
+            {country:'JP',flag:'🇯🇵',title:'日本：太阳能板回收制度 2026 年实施',date:'2026-02-15',agency:'日本环境省',impact:'medium'}
+        ];
+        
+        function renderPage() {
+            document.getElementById('total-policies').textContent = policies.length;
+            
+            const countries = [...new Set(policies.map(p => p.country))];
+            document.getElementById('total-countries').textContent = countries.length;
+            
+            const seaCount = policies.filter(p => ['VN','TH','ID','MY','PH'].includes(p.country)).length;
+            document.getElementById('sea-policies').textContent = seaCount;
+            
+            const byCountry = {};
+            policies.forEach(p => {
+                if (!byCountry[p.country]) byCountry[p.country] = [];
+                byCountry[p.country].push(p);
+            });
+            
+            const container = document.getElementById('country-sections');
+            
+            Object.entries(byCountry).forEach(([code, countryPolicies]) => {
+                const names = {VN:'越南',TH:'泰国',ID:'印尼',MY:'马来西亚',PH:'菲律宾',JP:'日本'};
+                const flag = countryPolicies[0].flag;
+                
+                const section = document.createElement('div');
+                section.className = 'country-section';
+                section.innerHTML = `
+                    <div class="country-header">
+                        <div class="country-flag">${flag}</div>
+                        <div class="country-title">${names[code] || code}</div>
+                        <div class="country-count">${countryPolicies.length}条</div>
+                    </div>
+                    ${countryPolicies.map(p => `
+                        <div class="policy-item">
+                            <div class="policy-title">${p.title}</div>
+                            <div class="policy-meta">
+                                <span>🏢 ${p.agency}</span>
+                                <span>📅 ${p.date}</span>
+                                <span class="policy-badge badge-${p.impact}">${p.impact === 'high' ? '重大影响' : '中等影响'}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                container.appendChild(section);
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', renderPage);
+    </script>
+</body>
+</html>

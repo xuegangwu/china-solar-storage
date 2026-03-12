@@ -1,0 +1,51 @@
+# 依赖
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 数据库文件（包含敏感数据）
+backend/data/*.db
+
+# 日志文件
+logs/
+*.log
+npm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+._*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 备份文件
+*.bak
+*.backup
+backup/
+
+# 环境配置（如包含密码等敏感信息）
+.env
+.env.local
+.env.production
+
+# 构建输出
+dist/
+build/
+
+# 测试覆盖率
+coverage/
+
+# 上传文件
+uploads/
+public/uploads/

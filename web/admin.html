@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 光储电站投资地图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+        }
+        
+        .btn-logout {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid #e1e5eb;
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: #f5f7fa;
+            color: #667eea;
+        }
+        
+        .nav-item.active {
+            background: #667eea15;
+            color: #667eea;
+            border-right: 3px solid #667eea;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .panel {
+            display: none;
+        }
+        
+        .panel.active {
+            display: block;
+        }
+        
+        .panel-header {
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .panel-subtitle {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        .stat-change.up {
+            color: #52c41a;
+        }
+        
+        .stat-change.down {
+            color: #ff4d4f;
+        }
+        
+        /* 表格 */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e1e5eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f9fafb;
+            padding: 12px 24px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e1e5eb;
+        }
+        
+        td {
+            padding: 14px 24px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .role-admin {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .role-user {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .role-viewer {
+            background: #fffbe6;
+            color: #faad14;
+        }
+        
+        /* 表单 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* 日志列表 */
+        .log-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        
+        .log-time {
+            color: #888;
+            margin-right: 10px;
+        }
+        
+        .log-action {
+            color: #667eea;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌞 后台管理</h1>
+        <div class="user-info">
+            <span class="user-name" id="user-name">管理员</span>
+            <button class="btn-logout" onclick="logout()">退出</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item active" data-panel="dashboard" onclick="switchPanel('dashboard')">
+                📊 仪表盘
+            </div>
+            <div class="nav-item" data-panel="users" onclick="switchPanel('users')">
+                👥 用户管理
+            </div>
+            <div class="nav-item" data-panel="data" onclick="switchPanel('data')">
+                📁 数据管理
+            </div>
+            <div class="nav-item" data-panel="logs" onclick="switchPanel('logs')">
+                📝 操作日志
+            </div>
+            <div class="nav-item" data-panel="settings" onclick="switchPanel('settings')">
+                ⚙️ 系统设置
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 仪表盘 -->
+            <div id="panel-dashboard" class="panel active">
+                <div class="panel-header">
+                    <h2 class="panel-title">仪表盘</h2>
+                    <p class="panel-subtitle">系统概览和统计数据</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">总用户数</div>
+                        <div class="stat-value" id="stat-users">4</div>
+                        <div class="stat-change up">↑ 较上周 +1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">评估省份</div>
+                        <div class="stat-value">30</div>
+                        <div class="stat-change">持平</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">项目数据</div>
+                        <div class="stat-value" id="stat-projects">6</div>
+                        <div class="stat-change up">↑ 新增 2</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">系统访问</div>
+                        <div class="stat-value" id="stat-visits">128</div>
+                        <div class="stat-change up">↑ 今日 +12</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">最近访问</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用户</th>
+                                <th>角色</th>
+                                <th>访问时间</th>
+                                <th>IP 地址</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-visits">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 用户管理 -->
+            <div id="panel-users" class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">用户管理</h2>
+                    <p class="panel-subtitle">管理系统用户和权限</p>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">用户列表</h3>
+                        <button class="btn btn-primary" onclick="showAddUserModal()">+ 添加用户</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>姓名</th>
+                                <th>角色</th>
+                                <th>创建时间</th>
+                                <th>最后登录</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 数据管理 -->
+            <div id="panel-data" class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">数据管理</h2>
+                    <p class="panel-subtitle">管理省份和项目数据</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">省份数据</div>
+                        <div class="stat-value">30</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">项目数据</div>
+                        <div class="stat-value">6</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">政策文件</div>
+                        <div class="stat-value">5</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">最后更新</div>
+                        <div class="stat-value" style="font-size: 18px;">今日</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">数据操作</h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="exportAllData()">📊 导出全部数据</button>
+                            <button class="btn btn-primary" onclick="importData()">📁 导入数据</button>
+                            <button class="btn btn-danger" onclick="clearCache()">🗑️ 清除缓存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作日志 -->
+            <div id="panel-logs" class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">操作日志</h2>
+                    <p class="panel-subtitle">系统操作记录</p>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">最近日志</h3>
+                        <button class="btn" onclick="clearLogs()">清空日志</button>
+                    </div>
+                    <div class="log-list" id="log-list">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 系统设置 -->
+            <div id="panel-settings" class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">系统设置</h2>
+                    <p class="panel-subtitle">配置系统参数</p>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">评估权重</h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div class="form-group">
+                            <label>资源条件权重 (%)</label>
+                            <input type="number" id="setting-resource" value="15" min="0" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label>电价水平权重 (%)</label>
+                            <input type="number" id="setting-price" value="20" min="0" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label>政策支持权重 (%)</label>
+                            <input type="number" id="setting-policy" value="15" min="0" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label>消纳条件权重 (%)</label>
+                            <input type="number" id="setting-grid" value="50" min="20" max="80">
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟数据
+        let users = [
+            { username: 'admin', name: '系统管理员', role: 'admin', createdAt: '2026-01-01', lastLogin: '2026-03-11 12:00' },
+            { username: 'terry', name: '伍学纲', role: 'admin', createdAt: '2026-01-15', lastLogin: '2026-03-11 11:45' },
+            { username: 'user', name: '普通用户', role: 'user', createdAt: '2026-02-01', lastLogin: '2026-03-10 16:30' },
+            { username: 'viewer', name: '访客', role: 'viewer', createdAt: '2026-03-01', lastLogin: '2026-03-09 09:15' }
+        ];
+        
+        let logs = [
+            { time: '2026-03-11 12:00:00', user: 'admin', action: '登录系统' },
+            { time: '2026-03-11 11:45:00', user: 'terry', action: '查看地图' },
+            { time: '2026-03-11 10:30:00', user: 'admin', action: '导出 PDF 报告' },
+            { time: '2026-03-11 09:15:00', user: 'user', action: '调节权重' },
+            { time: '2026-03-10 16:30:00', user: 'user', action: '加入对比' },
+            { time: '2026-03-10 14:20:00', user: 'terry', action: '添加项目数据' },
+            { time: '2026-03-10 11:00:00', user: 'admin', action: '更新用户权限' }
+        ];
+        
+        // 检查登录
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedUser = localStorage.getItem('user');
+            if (!savedUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const userData = JSON.parse(savedUser);
+            if (userData.role !== 'admin') {
+                alert('权限不足，需要管理员权限');
+                window.location.href = 'map-v0.5.html';
+                return;
+            }
+            
+            document.getElementById('user-name').textContent = userData.name;
+            
+            loadUsers();
+            loadLogs();
+            loadVisits();
+        });
+        
+        // 切换面板
+        function switchPanel(panelName) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.panel === panelName) {
+                    item.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.classList.remove('active');
+                if (panel.id === `panel-${panelName}`) {
+                    panel.classList.add('active');
+                }
+            });
+            
+            addLog(`访问${panelName}页面`);
+        }
+        
+        // 加载用户列表
+        function loadUsers() {
+            const tbody = document.getElementById('user-list');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.name}</td>
+                    <td><span class="role-badge role-${user.role}">${user.role === 'admin' ? '管理员' : user.role === 'user' ? '普通用户' : '访客'}</span></td>
+                    <td>${user.createdAt}</td>
+                    <td>${user.lastLogin}</td>
+                    <td>
+                        ${user.username !== 'admin' ? `
+                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;" onclick="editUser('${user.username}')">编辑</button>
+                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteUser('${user.username}')">删除</button>
+                        ` : '-'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 加载日志
+        function loadLogs() {
+            const logList = document.getElementById('log-list');
+            logList.innerHTML = '';
+            
+            logs.slice(0, 20).forEach(log => {
+                const div = document.createElement('div');
+                div.className = 'log-item';
+                div.innerHTML = `
+                    <span class="log-time">${log.time}</span>
+                    <span class="log-action">${log.user}</span>
+                    ${log.action}
+                `;
+                logList.appendChild(div);
+            });
+        }
+        
+        // 加载访问记录
+        function loadVisits() {
+            const tbody = document.getElementById('recent-visits');
+            tbody.innerHTML = '';
+            
+            const visits = [
+                { user: 'admin', role: '管理员', time: '2026-03-11 12:00', ip: '192.168.1.100' },
+                { user: 'terry', role: '管理员', time: '2026-03-11 11:45', ip: '192.168.1.101' },
+                { user: 'user', role: '普通用户', time: '2026-03-11 10:30', ip: '192.168.1.102' },
+                { user: 'viewer', role: '访客', time: '2026-03-11 09:15', ip: '192.168.1.103' }
+            ];
+            
+            visits.forEach(visit => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${visit.user}</td>
+                    <td><span class="role-badge role-${visit.role === '管理员' ? 'admin' : visit.role === '普通用户' ? 'user' : 'viewer'}">${visit.role}</span></td>
+                    <td>${visit.time}</td>
+                    <td>${visit.ip}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 添加用户
+        function showAddUserModal() {
+            const username = prompt('请输入用户名:');
+            if (!username) return;
+            
+            const password = prompt('请输入密码:');
+            if (!password) return;
+            
+            const name = prompt('请输入姓名:');
+            if (!name) return;
+            
+            const role = prompt('请输入角色 (admin/user/viewer):', 'user');
+            if (!['admin', 'user', 'viewer'].includes(role)) {
+                alert('角色必须是 admin、user 或 viewer');
+                return;
+            }
+            
+            users.push({
+                username: username,
+                name: name,
+                role: role,
+                createdAt: new Date().toISOString().split('T')[0],
+                lastLogin: '-'
+            });
+            
+            loadUsers();
+            addLog(`添加用户 ${username}`);
+            alert('用户添加成功');
+        }
+        
+        // 编辑用户
+        function editUser(username) {
+            const user = users.find(u => u.username === username);
+            if (!user) return;
+            
+            const newName = prompt('修改姓名:', user.name);
+            if (newName) user.name = newName;
+            
+            const newRole = prompt('修改角色 (admin/user/viewer):', user.role);
+            if (newRole && ['admin', 'user', 'viewer'].includes(newRole)) {
+                user.role = newRole;
+            }
+            
+            loadUsers();
+            addLog(`编辑用户 ${username}`);
+            alert('用户信息已更新');
+        }
+        
+        // 删除用户
+        function deleteUser(username) {
+            if (!confirm(`确定要删除用户 ${username} 吗？`)) return;
+            
+            users = users.filter(u => u.username !== username);
+            loadUsers();
+            addLog(`删除用户 ${username}`);
+            alert('用户已删除');
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            const resource = parseInt(document.getElementById('setting-resource').value);
+            const price = parseInt(document.getElementById('setting-price').value);
+            const policy = parseInt(document.getElementById('setting-policy').value);
+            const grid = parseInt(document.getElementById('setting-grid').value);
+            
+            const total = resource + price + policy + grid;
+            if (total !== 100) {
+                alert(`权重总和必须为 100%，当前为${total}%`);
+                return;
+            }
+            
+            localStorage.setItem('weights', JSON.stringify({ resource, price, policy, grid }));
+            addLog('更新系统权重设置');
+            alert('设置已保存');
+        }
+        
+        // 导出全部数据
+        function exportAllData() {
+            const data = {
+                exported_at: new Date().toISOString(),
+                users: users,
+                logs: logs,
+                weights: JSON.parse(localStorage.getItem('weights') || '{"resource":15,"price":20,"policy":15,"grid":50}')
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'admin-data-export.json';
+            a.click();
+            
+            addLog('导出全部数据');
+        }
+        
+        // 导入数据
+        function importData() {
+            alert('导入功能开发中...');
+        }
+        
+        // 清除缓存
+        function clearCache() {
+            if (!confirm('确定要清除缓存吗？')) return;
+            localStorage.clear();
+            addLog('清除系统缓存');
+            alert('缓存已清除');
+        }
+        
+        // 清空日志
+        function clearLogs() {
+            if (!confirm('确定要清空所有日志吗？')) return;
+            logs = [];
+            loadLogs();
+            addLog('清空操作日志');
+        }
+        
+        // 添加日志
+        function addLog(action) {
+            const now = new Date();
+            const timeStr = now.toISOString().replace('T', ' ').substring(0, 19);
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            
+            logs.unshift({
+                time: timeStr,
+                user: currentUser ? currentUser.username : 'unknown',
+                action: action
+            });
+            
+            // 保留最近 100 条
+            if (logs.length > 100) {
+                logs = logs.slice(0, 100);
+            }
+            
+            loadLogs();
+        }
+        
+        // 退出登录
+        function logout() {
+            if (!confirm('确定要退出登录吗？')) return;
+            
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光储电站数字孪生 - 3D 展示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            overflow: hidden;
+            background: #000;
+        }
+        #container { position: relative; width: 100vw; height: 100vh; }
+        #canvas3d { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        #header {
+            position: absolute; top: 0; left: 0; right: 0; height: 60px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+            color: white; padding: 0 30px; display: flex; align-items: center;
+            justify-content: space-between; z-index: 100;
+        }
+        #header h1 { font-size: 20px; font-weight: 600; }
+        
+        #sidebar-left {
+            position: absolute; left: 0; top: 60px; bottom: 0; width: 300px;
+            background: rgba(255, 255, 255, 0.95); padding: 20px;
+            overflow-y: auto; z-index: 100;
+        }
+        
+        #sidebar-right {
+            position: absolute; right: 0; top: 60px; bottom: 80px; width: 350px;
+            background: rgba(255, 255, 255, 0.95); padding: 20px;
+            overflow-y: auto; z-index: 100;
+        }
+        
+        #footer {
+            position: absolute; left: 0; right: 0; bottom: 0; height: 80px;
+            background: rgba(255, 255, 255, 0.95); padding: 0 30px;
+            display: flex; align-items: center; gap: 20px; z-index: 100;
+        }
+        
+        .panel {
+            background: white; border-radius: 12px; padding: 15px;
+            margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .panel-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .stat-item { text-align: center; padding: 10px; background: #f9fafb; border-radius: 8px; }
+        .stat-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .stat-value { font-size: 18px; font-weight: 600; color: #667eea; }
+        .stat-unit { font-size: 11px; color: #999; margin-left: 2px; }
+        
+        .data-list { list-style: none; }
+        .data-list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        .data-list-item:last-child { border-bottom: none; }
+        .data-label { color: #666; }
+        .data-value { font-weight: 600; color: #333; }
+        
+        .control-btn {
+            padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 13px; font-weight: 600;
+        }
+        .control-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; z-index: 1000;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* 📱 移动端适配 */
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px !important; }
+            .header { padding: 15px 20px !important; flex-direction: column !important; gap: 15px !important; }
+            .header h1 { font-size: 20px !important; }
+            .header p { font-size: 12px !important; }
+            .sidebar { width: 100% !important; max-height: 40vh !important; border-right: none !important; border-bottom: 1px solid #e1e5eb !important; }
+            .map-area { height: 60vh !important; }
+            .btn { padding: 8px 12px !important; font-size: 12px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .stat-value { font-size: 18px !important; }
+            .province-list { max-height: 300px !important; }
+            .province-name { font-size: 14px !important; }
+            .grade-badge { padding: 3px 8px !important; font-size: 11px !important; }
+        }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 18px !important; }
+            .header p { font-size: 11px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .header-actions { flex-wrap: wrap !important; justify-content: center !important; }
+            .card { padding: 15px !important; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div class="header">
+            <div>
+                <h1>🏭 光储电站数字孪生系统</h1>
+                <p style="font-size: 12px; opacity: 0.9;">Digital Twin · 浙江省杭州市光伏电站 · 100MW</p>
+            </div>
+            <div class="header-actions">
+                <a href="/index.html" class="btn">🏠 首页</a>
+                <button class="btn" onclick="window.location.href='/map-v1.0.html'">🗺️ 投资地图</button>
+                <button class="btn" onclick="window.location.href='/vietnam-map.html'">🌏 越南地图</button>
+                <button class="btn" onclick="toggleFullscreen()">⛶ 全屏</button>
+            </div>
+        </div>
+        
+        <div id="sidebar-left">
+            <div class="panel">
+                <div class="panel-title">📍 电站信息</div>
+                <ul class="data-list">
+                    <li class="data-list-item"><span class="data-label">地址</span><span class="data-value">浙江省杭州市</span></li>
+                    <li class="data-list-item"><span class="data-label">坐标</span><span class="data-value">30.27°N, 120.16°E</span></li>
+                    <li class="data-list-item"><span class="data-label">海拔</span><span class="data-value">50m</span></li>
+                    <li class="data-list-item"><span class="data-label">占地</span><span class="data-value">50,000m²</span></li>
+                    <li class="data-list-item"><span class="data-label">并网日期</span><span class="data-value">2025-12-31</span></li>
+                </ul>
+            </div>
+            <div class="panel">
+                <div class="panel-title">⚡ 装机容量</div>
+                <div class="stat-grid">
+                    <div class="stat-item"><div class="stat-label">光伏</div><div class="stat-value">100<span class="stat-unit">MW</span></div></div>
+                    <div class="stat-item"><div class="stat-label">储能</div><div class="stat-value">200<span class="stat-unit">MWh</span></div></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="sidebar-right">
+            <div class="panel">
+                <div class="panel-title">⚡ 实时数据</div>
+                <div class="stat-grid">
+                    <div class="stat-item"><div class="stat-label">当前出力</div><div class="stat-value">85,000<span class="stat-unit">kW</span></div></div>
+                    <div class="stat-item"><div class="stat-label">小时收益</div><div class="stat-value">35,700<span class="stat-unit">元</span></div></div>
+                    <div class="stat-item"><div class="stat-label">当前辐射</div><div class="stat-value">850<span class="stat-unit">W/m²</span></div></div>
+                    <div class="stat-item"><div class="stat-label">弃光率</div><div class="stat-value">3.5<span class="stat-unit">%</span></div></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">💰 今日收益</div>
+                <ul class="data-list">
+                    <li class="data-list-item"><span class="data-label">发电收益</span><span class="data-value">189,000 元</span></li>
+                    <li class="data-list-item"><span class="data-label">补贴收入</span><span class="data-value">45,000 元</span></li>
+                    <li class="data-list-item"><span class="data-label">累计收益</span><span class="data-value">5,250 万元</span></li>
+                </ul>
+            </div>
+            <div class="panel">
+                <div class="panel-title">📊 财务指标</div>
+                <div class="stat-grid">
+                    <div class="stat-item"><div class="stat-label">IRR</div><div class="stat-value">10.8<span class="stat-unit">%</span></div></div>
+                    <div class="stat-item"><div class="stat-label">回收期</div><div class="stat-value">9.2<span class="stat-unit">年</span></div></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="footer">
+            <button class="control-btn" onclick="setView('overview')">🦅 鸟瞰</button>
+            <button class="control-btn" onclick="setView('equipment')">🔍 设备</button>
+            <button class="control-btn" onclick="setView('first')">👤 第一人称</button>
+            <div style="flex: 1; text-align: center; color: #666; font-size: 13px;">
+                🖱️ 左键旋转 · 滚轮缩放 · 右键平移
+            </div>
+        </div>
+        
+        <canvas id="canvas3d"></canvas>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <p style="color: white; margin-top: 15px; font-size: 14px;">正在加载 3D 场景...</p>
+        </div>
+    </div>
+    
+    <!-- Three.js from unpkg CDN -->
+    <script src="https://unpkg.com/three@0.150.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.150.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script>
+        let scene, camera, renderer, controls;
+        let stationGroup;
+        
+        // 检查 WebGL 支持
+        function checkWebGL() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (!gl) {
+                    throw new Error('WebGL not supported');
+                }
+                console.log('WebGL supported:', gl.getParameter(gl.VERSION));
+                return true;
+            } catch (e) {
+                console.error('WebGL check failed:', e);
+                document.getElementById('loading').innerHTML = `
+                    <div style="background: rgba(0,0,0,0.8); padding: 30px; border-radius: 12px; max-width: 400px;">
+                        <h3 style="color: #ff4d4f; margin-bottom: 15px;">⚠️ WebGL 不支持</h3>
+                        <p style="color: white; margin-bottom: 20px;">您的浏览器不支持 WebGL 或已被禁用。<br>请尝试使用 Chrome、Firefox 或 Edge 浏览器。</p>
+                    </div>
+                `;
+                return false;
+            }
+        }
+        
+        function init3D() {
+            console.log('Starting 3D initialization...');
+            
+            // 检查 WebGL
+            if (!checkWebGL()) {
+                return;
+            }
+            
+            // 场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            scene.fog = new THREE.Fog(0x87CEEB, 500, 2000);
+            
+            // 相机
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 5000);
+            camera.position.set(200, 150, 200);
+            
+            // 渲染器
+            const canvas = document.getElementById('canvas3d');
+            console.log('Canvas:', canvas);
+            
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            
+            // 设置 canvas 样式确保可见
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.display = 'block';
+            
+            console.log('Renderer size:', window.innerWidth, 'x', window.innerHeight);
+            console.log('Canvas display:', canvas.style.display);
+            
+            // 控制器
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05;
+            controls.minDistance = 50;
+            controls.maxDistance = 1000;
+            
+            // 灯光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            sunLight.position.set(100, 200, 100);
+            sunLight.castShadow = true;
+            scene.add(sunLight);
+            
+            // 地面
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(1000, 1000),
+                new THREE.MeshStandardMaterial({ color: 0x3a5f0b, roughness: 0.8 })
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // 电站组
+            stationGroup = new THREE.Group();
+            scene.add(stationGroup);
+            
+            // 创建光伏阵列
+            createPVArray();
+            
+            // 创建储能系统
+            createStorageSystem();
+            
+            // 创建逆变器
+            createInverters();
+            
+            console.log('Scene objects created');
+            
+            // 隐藏加载动画
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                console.log('Loading complete');
+            }, 1000);
+            
+            animate();
+        }
+        
+        function createPVArray() {
+            const geometry = new THREE.BoxGeometry(2, 0.1, 1);
+            const material = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.3 });
+            
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    const row = new THREE.Group();
+                    for (let k = 0; k < 5; k++) {
+                        const panel = new THREE.Mesh(geometry, material);
+                        panel.position.set(k * 2.5, 1.5, 0);
+                        panel.rotation.x = -Math.PI / 6;
+                        panel.castShadow = true;
+                        row.add(panel);
+                    }
+                    row.position.set(i * 30 - 150, 0, j * 30 - 150);
+                    stationGroup.add(row);
+                }
+            }
+            console.log('PV array created: 100 rows');
+        }
+        
+        function createStorageSystem() {
+            const geometry = new THREE.BoxGeometry(12, 3, 3);
+            const material = new THREE.MeshStandardMaterial({ color: 0x1890ff });
+            
+            for (let i = 0; i < 4; i++) {
+                const container = new THREE.Mesh(geometry, material);
+                container.position.set(i * 15 - 22, 1.5, 50);
+                container.castShadow = true;
+                stationGroup.add(container);
+            }
+            console.log('Storage containers created: 4');
+        }
+        
+        function createInverters() {
+            const geometry = new THREE.BoxGeometry(3, 2.5, 2);
+            const material = new THREE.MeshStandardMaterial({ color: 0xf59e0b });
+            
+            for (let i = 0; i < 2; i++) {
+                const inverter = new THREE.Mesh(geometry, material);
+                inverter.position.set(i * 50 - 25, 1.25, -50);
+                inverter.castShadow = true;
+                stationGroup.add(inverter);
+            }
+            console.log('Inverters created: 2');
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        function setView(viewType) {
+            switch(viewType) {
+                case 'overview':
+                    camera.position.set(200, 150, 200);
+                    break;
+                case 'equipment':
+                    camera.position.set(50, 30, 50);
+                    break;
+                case 'first':
+                    camera.position.set(0, 2, 0);
+                    break;
+            }
+            camera.lookAt(0, 0, 0);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // 延迟初始化确保 CDN 加载完成
+        window.addEventListener('load', () => {
+            console.log('Window loaded, waiting for Three.js...');
+            if (typeof THREE !== 'undefined') {
+                console.log('Three.js loaded:', THREE.REVISION);
+                init3D();
+            } else {
+                console.error('Three.js not loaded!');
+                document.getElementById('loading').innerHTML = `
+                    <p style="color: #ff4d4f;">Three.js 加载失败</p>
+                    <p style="color: #999; font-size: 12px; margin-top: 10px;">请检查网络连接</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

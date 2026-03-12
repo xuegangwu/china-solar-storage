@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球政策采集成果 - 光储龙虾</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 36px; margin-bottom: 10px; }
+        .header p { font-size: 16px; opacity: 0.9; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-icon { font-size: 40px; margin-bottom: 10px; }
+        .stat-value { font-size: 42px; font-weight: 700; color: #667eea; }
+        .stat-label { font-size: 14px; color: #666; margin-top: 8px; }
+        
+        .country-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .country-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .country-flag { font-size: 40px; }
+        .country-title { font-size: 24px; font-weight: 600; color: #333; }
+        .country-count { 
+            background: #667eea; 
+            color: white; 
+            padding: 6px 15px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            font-weight: 600;
+        }
+        
+        .policy-item {
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+        .policy-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateX(5px);
+        }
+        .policy-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+        .policy-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .policy-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-high { background: #fef2f2; color: #dc2626; }
+        .badge-medium { background: #fffbeb; color: #d97706; }
+        .badge-low { background: #f0fdf4; color: #16a34a; }
+        
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/longi.html" class="back-btn">← 返回光储龙虾</a>
+        
+        <div class="header">
+            <h1>🌍 全球政策采集成果展示</h1>
+            <p>光储龙虾·政策采集系统 · 第一批次成果 · 2026-03-11</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📰</div>
+                <div class="stat-value" id="total-policies">0</div>
+                <div class="stat-label">总政策数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌏</div>
+                <div class="stat-value" id="total-countries">0</div>
+                <div class="stat-label">覆盖国家/地区</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="high-impact">0</div>
+                <div class="stat-label">高影响政策</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-value">今日</div>
+                <div class="stat-label">采集时间</div>
+            </div>
+        </div>
+        
+        <div id="country-sections">
+            <!-- 动态加载 -->
+        </div>
+    </div>
+    
+    <script>
+        let allPolicies = [];
+        
+        // 加载政策数据
+        async function loadPolicies() {
+            try {
+                const response = await fetch('/backend/crawlers/news_data.json');
+                const data = await response.json();
+                allPolicies = data.news || [];
+                renderPage();
+            } catch (e) {
+                console.error('加载失败:', e);
+                // 使用示例数据
+                allPolicies = getSamplePolicies();
+                renderPage();
+            }
+        }
+        
+        function getSamplePolicies() {
+            return [
+                {
+                    news_id: 'NEWS_001',
+                    country: 'CN',
+                    flag: '🇨🇳',
+                    title: '国家能源局关于推进 2026 年风电光伏发电开发建设的通知',
+                    title_en: 'NEA Notice on Promoting 2026 Wind and Solar Development',
+                    agency: 'National Energy Administration',
+                    publish_date: '2026-03-10',
+                    impact_level: 'high',
+                    impact_text: '重大影响',
+                    impact_text_en: 'High Impact'
+                },
+                {
+                    news_id: 'NEWS_002',
+                    country: 'US',
+                    flag: '🇺🇸',
+                    title: 'IRA 税收抵免延长至 2035 年',
+                    title_en: 'IRA Tax Credits Extended to 2035',
+                    agency: 'U.S. Department of Energy',
+                    publish_date: '2026-03-07',
+                    impact_level: 'high',
+                    impact_text: '重大影响',
+                    impact_text_en: 'High Impact'
+                },
+                {
+                    news_id: 'NEWS_003',
+                    country: 'EU',
+                    flag: '🇪🇺',
+                    title: 'REPowerEU：2030 年可再生能源目标 45%',
+                    title_en: 'REPowerEU: 2030 Renewable Target 45%',
+                    agency: 'European Commission',
+                    publish_date: '2026-03-08',
+                    impact_level: 'high',
+                    impact_text: '重大影响',
+                    impact_text_en: 'High Impact'
+                }
+            ];
+        }
+        
+        function renderPage() {
+            // 统计
+            document.getElementById('total-policies').textContent = allPolicies.length;
+            
+            const countries = [...new Set(allPolicies.map(p => p.country))];
+            document.getElementById('total-countries').textContent = countries.length;
+            
+            const highImpact = allPolicies.filter(p => p.impact_level === 'high').length;
+            document.getElementById('high-impact').textContent = highImpact;
+            
+            // 按国家分组
+            const byCountry = {};
+            allPolicies.forEach(p => {
+                if (!byCountry[p.country]) {
+                    byCountry[p.country] = [];
+                }
+                byCountry[p.country].push(p);
+            });
+            
+            // 渲染每个国家的政策
+            const container = document.getElementById('country-sections');
+            container.innerHTML = '';
+            
+            countries.forEach(countryCode => {
+                const policies = byCountry[countryCode];
+                const flag = policies[0].flag;
+                const countryName = getCountryName(countryCode);
+                
+                const section = document.createElement('div');
+                section.className = 'country-section';
+                
+                section.innerHTML = `
+                    <div class="country-header">
+                        <div class="country-flag">${flag}</div>
+                        <div class="country-title">${countryName}</div>
+                        <div class="country-count">${policies.length}条政策</div>
+                    </div>
+                    ${policies.map(p => renderPolicyItem(p)).join('')}
+                `;
+                
+                container.appendChild(section);
+            });
+        }
+        
+        function renderPolicyItem(policy) {
+            const badgeClass = `badge-${policy.impact_level}`;
+            
+            return `
+                <div class="policy-item">
+                    <div class="policy-title">${policy.title}</div>
+                    <div class="policy-meta">
+                        <span>🏢 ${policy.agency}</span>
+                        <span>📅 ${policy.publish_date}</span>
+                        <span class="policy-badge ${badgeClass}">${policy.impact_text}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getCountryName(code) {
+            const names = {
+                'CN': '中国',
+                'US': '美国',
+                'EU': '欧盟',
+                'SA': '沙特',
+                'VN': '越南'
+            };
+            return names[code] || code;
+        }
+        
+        window.addEventListener('DOMContentLoaded', loadPolicies);
+    </script>
+</body>
+</html>

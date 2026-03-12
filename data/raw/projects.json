@@ -1,0 +1,21 @@
+{
+  "projects": [],
+  "schema": {
+    "project_id": "string",
+    "name": "string",
+    "province": "string",
+    "city": "string",
+    "district": "string",
+    "latitude": "number",
+    "longitude": "number",
+    "status": "operating|under_construction|planned",
+    "capacity_mw": "number",
+    "storage_mwh": "number",
+    "commission_date": "string",
+    "developer": "string",
+    "investment": "number",
+    "source": "string",
+    "created_at": "string",
+    "updated_at": "string"
+  }
+}

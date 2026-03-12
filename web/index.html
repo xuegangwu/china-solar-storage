@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光储电站投资系统 - 首页</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+        
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .card-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .card-features li {
+            font-size: 13px;
+            color: #666;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .card-features li::before {
+            content: '✓';
+            color: #52c41a;
+            font-weight: bold;
+        }
+        
+        .card-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .card-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .card-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .card-tag.new {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            padding: 30px;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        /* 📱 移动端适配 */
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px; }
+            .header h1 { font-size: 28px; }
+            .header p { font-size: 14px; }
+            .cards { grid-template-columns: 1fr; gap: 20px; }
+            .card { padding: 20px; }
+            .stats { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 24px; }
+            .header p { font-size: 13px; }
+            .card { padding: 15px; }
+            .card-tag { font-size: 10px; padding: 3px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌞 光储电站投资系统</h1>
+            <p>Solar-Storage Investment Platform · 一站式投资决策平台</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">45</div>
+                <div class="stat-label">覆盖省份</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">6</div>
+                <div class="stat-label">示例项目</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">28</div>
+                <div class="stat-label">API 接口</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">4</div>
+                <div class="stat-label">应用系统</div>
+            </div>
+        </div>
+        
+        <div class="cards">
+            <!-- 投资地图卡片 -->
+            <a href="/map-v1.0.html" class="card">
+                <span class="card-tag">热门</span>
+                <div class="card-icon">🗺️</div>
+                <div class="card-title">中国投资地图</div>
+                <div class="card-desc">基于 GIS 的中国光储电站投资评估系统，30 省份完整数据</div>
+                <ul class="card-features">
+                    <li>30 省份投资评估</li>
+                    <li>交互式地图展示</li>
+                    <li>ROI 快速测算</li>
+                    <li>电价政策查询</li>
+                </ul>
+                <span class="card-btn">立即使用 →</span>
+            </a>
+            
+            <!-- 越南地图卡片 -->
+            <a href="/vietnam-map.html" class="card">
+                <span class="card-tag">国际</span>
+                <div class="card-icon">🌏</div>
+                <div class="card-title">越南投资地图</div>
+                <div class="card-desc">越南光储电站投资评估，15 省份详细数据，"一带一路"投资机会</div>
+                <ul class="card-features">
+                    <li>15 省份投资评估</li>
+                    <li>FIT 电价政策</li>
+                    <li>光照资源分析</li>
+                    <li>投资风险评级</li>
+                </ul>
+                <span class="card-btn">立即使用 →</span>
+            </a>
+            
+            <!-- 日本地图卡片 -->
+            <a href="/japan-map.html" class="card">
+                <span class="card-tag new">NEW</span>
+                <span class="card-tag">国际</span>
+                <div class="card-icon">🇯🇵</div>
+                <div class="card-title">日本投资地图</div>
+                <div class="card-desc">日本光储电站投资评估，47 都道府县全覆盖，发达市场投资机会</div>
+                <ul class="card-features">
+                    <li>47 都道府县评估</li>
+                    <li>高电价市场</li>
+                    <li>成熟电网条件</li>
+                    <li>投资风险评级</li>
+                </ul>
+                <span class="card-btn">立即使用 →</span>
+            </a>
+            
+            <!-- 数字孪生卡片 -->
+            <a href="/digital-twin-simple.html" class="card">
+                <span class="card-tag new">NEW</span>
+                <div class="card-icon">🏭</div>
+                <div class="card-title">数字孪生</div>
+                <div class="card-desc">沉浸式 3D 电站展示，实时数据监控，可视化运维管理</div>
+                <ul class="card-features">
+                    <li>3D 电站可视化</li>
+                    <li>实时数据监控</li>
+                    <li>设备状态展示</li>
+                    <li>投资收益分析</li>
+                </ul>
+                <span class="card-btn">立即体验 →</span>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 光储电站投资系统 · 内部使用</p>
+            <p style="margin-top: 10px;">
+                <a href="/config.html">⚙️ 参数配置</a>
+                <span style="opacity: 0.3;">|</span>
+                <a href="/login-v1.0.html">🔐 登录</a>
+                <span style="opacity: 0.3;">|</span>
+                <a href="/docs/USAGE.md">📖 帮助文档</a>
+                <span style="opacity: 0.3;">|</span>
+                <a href="/backend/API.md">📡 API 文档</a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // 自动跳转到登录页（如果需要）
+        // window.location.href = '/login-v1.0.html';
+    </script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光储电站投资地图 v1.0 - 后端集成版</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 15px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header h1 { font-size: 20px; font-weight: 600; }
+        .header-actions { display: flex; gap: 10px; }
+        .btn {
+            padding: 8px 14px; background: rgba(255,255,255,0.2);
+            color: white; border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px; cursor: pointer; font-size: 13px;
+        }
+        .btn:hover { background: rgba(255,255,255,0.3); }
+        .container { display: flex; height: calc(100vh - 60px); }
+        .sidebar {
+            width: 380px; background: white; border-right: 1px solid #e1e5eb;
+            display: flex; flex-direction: column;
+        }
+        .map-area { flex: 1; position: relative; }
+        #map { width: 100%; height: 100%; }
+        .section { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; }
+        .section:last-child { border-bottom: none; }
+        .section.scrollable { flex: 1; overflow-y: auto; min-height: 0; }
+        .section h3 { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: 600; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 8px; padding: 12px; text-align: center;
+        }
+        .stat-value { font-size: 20px; font-weight: 600; color: #667eea; }
+        .stat-label { font-size: 11px; color: #888; margin-top: 3px; }
+        .province-list { 
+            flex: 1; 
+            overflow-y: auto; 
+            min-height: 0;
+            padding-right: 5px;
+        }
+        .province-list::-webkit-scrollbar { width: 6px; }
+        .province-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        .province-list::-webkit-scrollbar-thumb { background: #667eea30; border-radius: 3px; }
+        .province-list::-webkit-scrollbar-thumb:hover { background: #667eea60; }
+        .province-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 14px; margin-bottom: 8px; background: #f9fafb;
+            border-radius: 8px; cursor: pointer; border-left: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .province-item:hover { 
+            background: #f0f0f0; 
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .province-item.selected { background: #667eea15; border-left-color: #667eea; }
+        .province-item.grade-b { border-left-color: #1890ff; }
+        .province-item.grade-c { border-left-color: #faad14; }
+        .province-item.grade-d { border-left-color: #ff4d4f; }
+        .province-name { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px; }
+        .province-score { font-size: 13px; color: #666; font-weight: 500; }
+        .grade-badge { 
+            padding: 4px 10px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .province-item:hover .grade-badge { transform: scale(1.05); }
+        .grade-badge {
+            padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600;
+        }
+        .grade-b .grade-badge { background: #e6f7ff; color: #1890ff; }
+        .grade-c .grade-badge { background: #fffbe6; color: #faad14; }
+        .grade-d .grade-badge { background: #fff1f0; color: #ff4d4f; }
+        .loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; z-index: 1000;
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .detail-panel {
+            background: #f9fafb; border-radius: 8px; padding: 15px; margin-top: 10px;
+        }
+        .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .detail-item { background: white; padding: 10px; border-radius: 6px; text-align: center; }
+        .detail-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+        .detail-value { font-size: 16px; font-weight: 600; color: #333; }
+        .detail-value.highlight { color: #667eea; }
+        .legend {
+            background: white; padding: 10px; border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .legend-title { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+        .legend-color { width: 16px; height: 16px; border-radius: 3px; }
+        /* 📱 移动端适配 */
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px !important; }
+            .header { padding: 15px 20px !important; flex-direction: column !important; gap: 15px !important; }
+            .header h1 { font-size: 20px !important; }
+            .header p { font-size: 12px !important; }
+            .sidebar { width: 100% !important; max-height: 40vh !important; border-right: none !important; border-bottom: 1px solid #e1e5eb !important; }
+            .map-area { height: 60vh !important; }
+            .btn { padding: 8px 12px !important; font-size: 12px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .stat-value { font-size: 18px !important; }
+            .province-list { max-height: 300px !important; }
+            .province-name { font-size: 14px !important; }
+            .grade-badge { padding: 3px 8px !important; font-size: 11px !important; }
+        }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 18px !important; }
+            .header p { font-size: 11px !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .header-actions { flex-wrap: wrap !important; justify-content: center !important; }
+            .card { padding: 15px !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>🌞 光储电站投资地图 v1.0</h1>
+            <p style="font-size: 12px; opacity: 0.9;">后端集成版 · 30 省份数据</p>
+        </div>
+        <div class="header-actions">
+            <a href="/index.html" class="btn">🏠 首页</a>
+            <button class="btn" onclick="logout()">🚪 退出</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <div class="section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">30</div>
+                        <div class="stat-label">省份总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-grade-b">4</div>
+                        <div class="stat-label">B 级推荐</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-grade-c">12</div>
+                        <div class="stat-label">C 级谨慎</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>🔍 搜索省份</h3>
+                <div style="position: relative;">
+                    <input type="text" id="search-input" placeholder="输入省份名称..." 
+                           style="width: 100%; padding: 10px 12px 10px 35px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;"
+                           oninput="searchProvince()">
+                    <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #999;">🔍</span>
+                </div>
+            </div>
+            
+            <div class="section scrollable">
+                <h3>📍 省份列表</h3>
+                <div class="province-list" id="province-list">
+                    <div style="text-align: center; padding: 20px; color: #888;">加载中...</div>
+                </div>
+            </div>
+            
+            <div class="section" id="detail-section" style="display: none;">
+                <h3>📊 省份详情</h3>
+                <div class="detail-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span id="detail-province-name" style="font-size: 16px; font-weight: 600;">省份名称</span>
+                        <span class="grade-badge" id="detail-grade">B 级</span>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">总分</div>
+                            <div class="detail-value highlight" id="detail-total-score">75.0</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">资源条件</div>
+                            <div class="detail-value" id="detail-resource">60</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">电价水平</div>
+                            <div class="detail-value" id="detail-price">85</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">政策支持</div>
+                            <div class="detail-value" id="detail-policy">100</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">消纳条件</div>
+                            <div class="detail-value" id="detail-grid">68</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="map-area">
+            <div id="map"></div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p class="loading-text">正在加载中国地图数据...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let map;
+        let markers = {};
+        let provincesData = [];
+        let selectedProvince = null;
+        let filteredProvinces = [];
+        
+        // 搜索省份
+        function searchProvince() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            
+            if (!query) {
+                filteredProvinces = [...provincesData];
+            } else {
+                filteredProvinces = provincesData.filter(p => 
+                    p.name.toLowerCase().includes(query) || 
+                    p.abbr.toLowerCase().includes(query)
+                );
+            }
+            
+            renderProvinceList();
+        }
+        
+        // 检查登录状态
+        function checkAuth() {
+            const savedUser = localStorage.getItem('user');
+            if (!savedUser) {
+                window.location.href = '/login-v1.0.html';
+                return false;
+            }
+            return true;
+        }
+        
+        // 加载省份数据
+        async function loadProvinces() {
+            try {
+                const response = await fetch(`${API_BASE}/provinces`);
+                const data = await response.json();
+                
+                if (data.provinces && data.provinces.length > 0) {
+                    provincesData = data.provinces.filter(p => p.country === 'CN'); // 只显示中国省份
+                    filteredProvinces = [...provincesData]; // 初始化筛选列表
+                    renderProvinceList();
+                    renderMap();
+                    updateStats();
+                    document.getElementById('loading').style.display = 'none';
+                } else {
+                    document.getElementById('province-list').innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">暂无数据</div>';
+                    document.getElementById('loading').style.display = 'none';
+                }
+            } catch (err) {
+                console.error('加载省份数据失败:', err);
+                document.getElementById('province-list').innerHTML = '<div style="padding: 20px; text-align: center; color: #ff4d4f;">加载失败，请检查后端服务</div>';
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        // 渲染省份列表
+        function renderProvinceList() {
+            const container = document.getElementById('province-list');
+            container.innerHTML = '';
+            
+            const sorted = [...filteredProvinces].sort((a, b) => b.scores.total - a.scores.total);
+            
+            if (sorted.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">未找到匹配的省份</div>';
+                return;
+            }
+            
+            sorted.forEach((province, index) => {
+                const item = document.createElement('div');
+                item.className = `province-item grade-${province.grade.toLowerCase()}${selectedProvince === province.name ? ' selected' : ''} fade-in`;
+                item.dataset.name = province.name;
+                item.style.animationDelay = `${index * 0.05}s`;
+                item.onclick = () => selectProvince(province);
+                
+                item.innerHTML = `
+                    <div class="province-info">
+                        <div class="province-name">${index + 1}. ${province.name}</div>
+                        <div class="province-score">总分：${province.scores.total.toFixed(1)}</div>
+                    </div>
+                    <span class="grade-badge">${province.grade}级</span>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // 更新统计
+        function updateStats() {
+            document.getElementById('stat-total').textContent = provincesData.length;
+            document.getElementById('stat-grade-b').textContent = provincesData.filter(p => p.grade === 'B').length;
+            document.getElementById('stat-grade-c').textContent = provincesData.filter(p => p.grade === 'C').length;
+        }
+        
+        // 选择省份
+        function selectProvince(province) {
+            selectedProvince = province.name;
+            
+            document.querySelectorAll('.province-item').forEach(item => {
+                item.classList.remove('selected');
+                if (item.dataset.name === province.name) {
+                    item.classList.add('selected');
+                }
+            });
+            
+            // 地图定位
+            if (markers[province.name]) {
+                map.flyTo([province.lat, province.lng], 6, { duration: 1.5 });
+                markers[province.name].openPopup();
+            }
+            
+            // 显示详情
+            showDetail(province);
+        }
+        
+        // 显示详情
+        function showDetail(province) {
+            const section = document.getElementById('detail-section');
+            section.style.display = 'block';
+            
+            document.getElementById('detail-province-name').textContent = province.name;
+            document.getElementById('detail-grade').textContent = province.grade + '级';
+            document.getElementById('detail-total-score').textContent = province.scores.total.toFixed(1);
+            
+            // 解析 scores
+            const scores = typeof province.scores === 'string' ? JSON.parse(province.scores) : (province.scores || {});
+            document.getElementById('detail-resource').textContent = scores.resource || '-';
+            document.getElementById('detail-price').textContent = scores.price || '-';
+            document.getElementById('detail-policy').textContent = scores.policy || '-';
+            document.getElementById('detail-grid').textContent = Math.round(scores.grid || 0);
+            
+            section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // 渲染地图
+        function renderMap() {
+            map = L.map('map').setView([35.8617, 104.1954], 4);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+            
+            const gradeColors = {
+                'B': { fill: '#1890ff', border: '#096dd9' },
+                'C': { fill: '#faad14', border: '#d48806' },
+                'D': { fill: '#ff4d4f', border: '#cf1322' }
+            };
+            
+            provincesData.forEach(province => {
+                const color = gradeColors[province.grade] || gradeColors['D'];
+                
+                const marker = L.circleMarker([province.lat, province.lng], {
+                    radius: 10 + (province.scores.total / 100) * 8,
+                    fillColor: color.fill,
+                    color: color.border,
+                    weight: 2,
+                    opacity: 0.9,
+                    fillOpacity: 0.7
+                }).addTo(map);
+                
+                const popup = L.popup({ maxWidth: 250 });
+                popup.setContent(`
+                    <div style="font-family: -apple-system, sans-serif;">
+                        <h3 style="margin: 0 0 8px 0; color: #333;">${province.name}</h3>
+                        <div style="display: inline-block; padding: 3px 8px; background: ${color.fill}; color: white; border-radius: 3px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">
+                            ${province.grade}级 - ${province.suggestion || '投资评级'}
+                        </div>
+                        <div style="font-size: 12px; color: #666;">
+                            <div style="margin-bottom: 4px;"><strong>总分:</strong> ${province.scores.total.toFixed(1)}</div>
+                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                                📍 ${province.abbr} · 坐标：${province.lat.toFixed(2)}, ${province.lng.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                `);
+                
+                marker.bindPopup(popup);
+                marker.on('click', () => selectProvince(province));
+                markers[province.name] = marker;
+            });
+            
+            // 添加图例
+            const legend = L.control({ position: 'bottomright' });
+            legend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = `
+                    <div class="legend-title">投资等级</div>
+                    <div class="legend-item"><div class="legend-color" style="background: #1890ff;"></div><span>B 级 - 推荐投资</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #faad14;"></div><span>C 级 - 谨慎投资</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #ff4d4f;"></div><span>D 级 - 暂不建议</span></div>
+                `;
+                return div;
+            };
+            legend.addTo(map);
+        }
+        
+        // 退出登录
+        function logout() {
+            if (!confirm('确定要退出登录吗？')) return;
+            localStorage.removeItem('user');
+            window.location.href = '/login-v1.0.html';
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            if (!checkAuth()) return;
+            loadProvinces();
+        });
+    </script>
+</body>
+</html>
