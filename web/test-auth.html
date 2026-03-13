@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录注册测试 - 光储投资地图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .test-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .form-section h2 {
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .alert-error {
+            background: #fee;
+            color: #c00;
+            border: 1px solid #fcc;
+        }
+        
+        .alert-success {
+            background: #efe;
+            color: #0a0;
+            border: 1px solid #cfc;
+        }
+        
+        .user-info {
+            background: #e8eaf6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        .user-info p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔐 登录注册功能测试</h1>
+        
+        <div id="alert-container"></div>
+        
+        <!-- 注册表单 -->
+        <div class="form-section">
+            <h2>📝 注册账号</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-name">姓名</label>
+                    <input type="text" id="register-name" required placeholder="Terry Wu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-email">邮箱</label>
+                    <input type="email" id="register-email" required placeholder="test@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" required placeholder="至少 6 位" minlength="6">
+                </div>
+                
+                <button type="submit" class="btn">📝 注册</button>
+            </form>
+            <div id="register-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 登录表单 -->
+        <div class="form-section">
+            <h2>🔑 登录账号</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">邮箱</label>
+                    <input type="email" id="login-email" required placeholder="test@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" required placeholder="密码">
+                </div>
+                
+                <button type="submit" class="btn">🔑 登录</button>
+            </form>
+            <div id="login-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- 用户信息 -->
+        <div id="user-section" style="display: none;">
+            <h2>👤 当前用户</h2>
+            <div class="user-info">
+                <p><strong>姓名：</strong><span id="user-name"></span></p>
+                <p><strong>邮箱：</strong><span id="user-email"></span></p>
+                <p><strong>角色：</strong><span id="user-role"></span></p>
+                <p><strong>会员等级：</strong><span id="user-plan"></span></p>
+                <button class="logout-btn" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import apiService from './js/api-service.js';
+        
+        // 显示警告
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 显示结果
+        function showResult(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+        
+        // 更新用户信息显示
+        function updateUserDisplay() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            const token = localStorage.getItem('token');
+            
+            if (user && token) {
+                document.getElementById('user-section').style.display = 'block';
+                document.getElementById('user-name').textContent = user.name;
+                document.getElementById('user-email').textContent = user.email;
+                document.getElementById('user-role').textContent = user.role;
+                document.getElementById('user-plan').textContent = user.plan;
+            } else {
+                document.getElementById('user-section').style.display = 'none';
+            }
+        }
+        
+        // 注册表单提交
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            try {
+                const response = await apiService.register(name, email, password);
+                
+                if (response.success) {
+                    showAlert('注册成功！', 'success');
+                    showResult('register-result', response.data);
+                    updateUserDisplay();
+                    
+                    // 清空表单
+                    e.target.reset();
+                }
+            } catch (error) {
+                showAlert(error.message || '注册失败');
+                showResult('register-result', { error: error.message });
+            }
+        });
+        
+        // 登录表单提交
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                const response = await apiService.login(email, password);
+                
+                if (response.success) {
+                    showAlert('登录成功！', 'success');
+                    showResult('login-result', response.data);
+                    updateUserDisplay();
+                    
+                    // 清空表单
+                    e.target.reset();
+                }
+            } catch (error) {
+                showAlert(error.message || '登录失败');
+                showResult('login-result', { error: error.message });
+            }
+        });
+        
+        // 退出登录
+        window.logout = function() {
+            apiService.logout();
+            localStorage.removeItem('user');
+            document.getElementById('user-section').style.display = 'none';
+            showAlert('已退出登录', 'success');
+        };
+        
+        // 页面加载时检查登录状态
+        updateUserDisplay();
+    </script>
+</body>
+</html>

@@ -88,14 +88,15 @@ class ApiService {
   // ==================== 用户相关 API ====================
   
   // 注册
-  async register(email, password, name) {
+  async register(name, email, password) {
     const response = await this.request('/users/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name })
+      body: JSON.stringify({ name, email, password })
     });
     
     if (response.success) {
       this.setToken(response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     
     return response;
@@ -110,6 +111,7 @@ class ApiService {
     
     if (response.success) {
       this.setToken(response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     
     return response;
