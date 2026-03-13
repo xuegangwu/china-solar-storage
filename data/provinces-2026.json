@@ -1,0 +1,324 @@
+{
+  "version": "2026.1",
+  "updateDate": "2026-03-13",
+  "provinces": [
+    {
+      "id": 1,
+      "name": "上海市",
+      "code": "SH",
+      "capital": "上海",
+      "scores": {
+        "total": 83.5,
+        "resource": 70,
+        "price": 90,
+        "market": 85,
+        "grid": 90,
+        "policy": 88,
+        "risk": 85
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.4155,
+        "peakValley": 0.85,
+        "marketRatio": 85,
+        "utilizationHours": 1100,
+        "solarIrradiation": 1450,
+        "landCost": 120,
+        "laborCost": 8000,
+        "gridCapacity": 95,
+        "policyStability": 88,
+        "exchangeRisk": 0,
+        "taxIncentive": 15,
+        "subsidy": 0.05
+      },
+      "history": [
+        {"year": 2024, "score": 81.2, "grade": "B"},
+        {"year": 2025, "score": 82.8, "grade": "B"},
+        {"year": 2026, "score": 83.5, "grade": "B"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "江苏省",
+      "code": "JS",
+      "capital": "南京",
+      "scores": {
+        "total": 86.2,
+        "resource": 75,
+        "price": 88,
+        "market": 90,
+        "grid": 92,
+        "policy": 90,
+        "risk": 88
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.3910,
+        "peakValley": 0.78,
+        "marketRatio": 88,
+        "utilizationHours": 1050,
+        "solarIrradiation": 1380,
+        "landCost": 100,
+        "laborCost": 7500,
+        "gridCapacity": 92,
+        "policyStability": 90,
+        "exchangeRisk": 0,
+        "taxIncentive": 20,
+        "subsidy": 0.08
+      },
+      "history": [
+        {"year": 2024, "score": 84.5, "grade": "B"},
+        {"year": 2025, "score": 85.8, "grade": "B"},
+        {"year": 2026, "score": 86.2, "grade": "A"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "浙江省",
+      "code": "ZJ",
+      "capital": "杭州",
+      "scores": {
+        "total": 85.8,
+        "resource": 72,
+        "price": 92,
+        "market": 88,
+        "grid": 90,
+        "policy": 86,
+        "risk": 87
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.4155,
+        "peakValley": 0.92,
+        "marketRatio": 82,
+        "utilizationHours": 1000,
+        "solarIrradiation": 1320,
+        "landCost": 130,
+        "laborCost": 7800,
+        "gridCapacity": 90,
+        "policyStability": 86,
+        "exchangeRisk": 0,
+        "taxIncentive": 18,
+        "subsidy": 0.06
+      },
+      "history": [
+        {"year": 2024, "score": 83.2, "grade": "B"},
+        {"year": 2025, "score": 84.8, "grade": "B"},
+        {"year": 2026, "score": 85.8, "grade": "B"}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "广东省",
+      "code": "GD",
+      "capital": "广州",
+      "scores": {
+        "total": 88.5,
+        "resource": 80,
+        "price": 95,
+        "market": 92,
+        "grid": 88,
+        "policy": 90,
+        "risk": 86
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.4500,
+        "peakValley": 1.05,
+        "marketRatio": 90,
+        "utilizationHours": 1150,
+        "solarIrradiation": 1520,
+        "landCost": 140,
+        "laborCost": 8200,
+        "gridCapacity": 88,
+        "policyStability": 90,
+        "exchangeRisk": 0,
+        "taxIncentive": 22,
+        "subsidy": 0.10
+      },
+      "history": [
+        {"year": 2024, "score": 86.8, "grade": "A"},
+        {"year": 2025, "score": 87.5, "grade": "A"},
+        {"year": 2026, "score": 88.5, "grade": "A"}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "山东省",
+      "code": "SD",
+      "capital": "济南",
+      "scores": {
+        "total": 84.2,
+        "resource": 78,
+        "price": 85,
+        "market": 86,
+        "grid": 85,
+        "policy": 82,
+        "risk": 84
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.3895,
+        "peakValley": 0.72,
+        "marketRatio": 80,
+        "utilizationHours": 1200,
+        "solarIrradiation": 1480,
+        "landCost": 80,
+        "laborCost": 6500,
+        "gridCapacity": 85,
+        "policyStability": 82,
+        "exchangeRisk": 0,
+        "taxIncentive": 15,
+        "subsidy": 0.05
+      },
+      "history": [
+        {"year": 2024, "score": 82.5, "grade": "B"},
+        {"year": 2025, "score": 83.5, "grade": "B"},
+        {"year": 2026, "score": 84.2, "grade": "B"}
+      ]
+    },
+    {
+      "id": 6,
+      "name": "河北省",
+      "code": "HE",
+      "capital": "石家庄",
+      "scores": {
+        "total": 82.5,
+        "resource": 82,
+        "price": 82,
+        "market": 80,
+        "grid": 82,
+        "policy": 85,
+        "risk": 83
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.3720,
+        "peakValley": 0.68,
+        "marketRatio": 75,
+        "utilizationHours": 1250,
+        "solarIrradiation": 1550,
+        "landCost": 70,
+        "laborCost": 6000,
+        "gridCapacity": 82,
+        "policyStability": 85,
+        "exchangeRisk": 0,
+        "taxIncentive": 12,
+        "subsidy": 0.03
+      },
+      "history": [
+        {"year": 2024, "score": 80.2, "grade": "B"},
+        {"year": 2025, "score": 81.5, "grade": "B"},
+        {"year": 2026, "score": 82.5, "grade": "B"}
+      ]
+    },
+    {
+      "id": 7,
+      "name": "安徽省",
+      "code": "AH",
+      "capital": "合肥",
+      "scores": {
+        "total": 83.8,
+        "resource": 76,
+        "price": 86,
+        "market": 84,
+        "grid": 85,
+        "policy": 88,
+        "risk": 85
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.3850,
+        "peakValley": 0.75,
+        "marketRatio": 78,
+        "utilizationHours": 1100,
+        "solarIrradiation": 1400,
+        "landCost": 75,
+        "laborCost": 6200,
+        "gridCapacity": 85,
+        "policyStability": 88,
+        "exchangeRisk": 0,
+        "taxIncentive": 18,
+        "subsidy": 0.06
+      },
+      "history": [
+        {"year": 2024, "score": 81.5, "grade": "B"},
+        {"year": 2025, "score": 82.8, "grade": "B"},
+        {"year": 2026, "score": 83.8, "grade": "B"}
+      ]
+    },
+    {
+      "id": 8,
+      "name": "河南省",
+      "code": "HA",
+      "capital": "郑州",
+      "scores": {
+        "total": 81.2,
+        "resource": 80,
+        "price": 80,
+        "market": 78,
+        "grid": 80,
+        "policy": 82,
+        "risk": 82
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.3770,
+        "peakValley": 0.70,
+        "marketRatio": 72,
+        "utilizationHours": 1180,
+        "solarIrradiation": 1460,
+        "landCost": 65,
+        "laborCost": 5800,
+        "gridCapacity": 80,
+        "policyStability": 82,
+        "exchangeRisk": 0,
+        "taxIncentive": 15,
+        "subsidy": 0.04
+      },
+      "history": [
+        {"year": 2024, "score": 79.5, "grade": "C"},
+        {"year": 2025, "score": 80.5, "grade": "B"},
+        {"year": 2026, "score": 81.2, "grade": "B"}
+      ]
+    }
+  ],
+  "scoringDimensions": {
+    "resource": {
+      "name": "资源禀赋",
+      "weight": 0.20,
+      "factors": ["太阳能辐照度", "年利用小时数", "土地资源"]
+    },
+    "price": {
+      "name": "电价政策",
+      "weight": 0.25,
+      "factors": ["燃煤基准价", "峰谷价差", "补贴力度"]
+    },
+    "market": {
+      "name": "市场条件",
+      "weight": 0.20,
+      "factors": ["市场化比例", "用电需求", "经济水平"]
+    },
+    "grid": {
+      "name": "电网条件",
+      "weight": 0.15,
+      "factors": ["消纳能力", "电网强度", "接入便利性"]
+    },
+    "policy": {
+      "name": "政策稳定性",
+      "weight": 0.12,
+      "factors": ["政策连续性", "政府支持度", "审批效率"]
+    },
+    "risk": {
+      "name": "风险评估",
+      "weight": 0.08,
+      "factors": ["汇率风险", "政策风险", "市场风险"]
+    }
+  },
+  "gradeThresholds": {
+    "A": 85,
+    "B": 75,
+    "C": 65,
+    "D": 0
+  }
+}

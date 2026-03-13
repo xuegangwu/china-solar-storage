@@ -1,0 +1,59 @@
+{
+  "description": "中国各省光储投资历史数据 (2024-2026)",
+  "years": [2024, 2025, 2026],
+  "data": {
+    "2024": {
+      "provinces": [
+        {"id": 1, "name": "上海市", "score": 81.2, "grade": "B", "rank": 8},
+        {"id": 2, "name": "江苏省", "score": 84.5, "grade": "B", "rank": 4},
+        {"id": 3, "name": "浙江省", "score": 83.2, "grade": "B", "rank": 6},
+        {"id": 4, "name": "广东省", "score": 86.8, "grade": "A", "rank": 2},
+        {"id": 5, "name": "山东省", "score": 82.5, "grade": "B", "rank": 7},
+        {"id": 6, "name": "河北省", "score": 80.2, "grade": "B", "rank": 10},
+        {"id": 7, "name": "安徽省", "score": 81.5, "grade": "B", "rank": 9},
+        {"id": 8, "name": "河南省", "score": 79.5, "grade": "C", "rank": 12}
+      ],
+      "averageScore": 82.4,
+      "topProvince": "广东省"
+    },
+    "2025": {
+      "provinces": [
+        {"id": 1, "name": "上海市", "score": 82.8, "grade": "B", "rank": 7},
+        {"id": 2, "name": "江苏省", "score": 85.8, "grade": "B", "rank": 3},
+        {"id": 3, "name": "浙江省", "score": 84.8, "grade": "B", "rank": 5},
+        {"id": 4, "name": "广东省", "score": 87.5, "grade": "A", "rank": 1},
+        {"id": 5, "name": "山东省", "score": 83.5, "grade": "B", "rank": 6},
+        {"id": 6, "name": "河北省", "score": 81.5, "grade": "B", "rank": 9},
+        {"id": 7, "name": "安徽省", "score": 82.8, "grade": "B", "rank": 8},
+        {"id": 8, "name": "河南省", "score": 80.5, "grade": "B", "rank": 11}
+      ],
+      "averageScore": 83.7,
+      "topProvince": "广东省"
+    },
+    "2026": {
+      "provinces": [
+        {"id": 1, "name": "上海市", "score": 83.5, "grade": "B", "rank": 7},
+        {"id": 2, "name": "江苏省", "score": 86.2, "grade": "A", "rank": 3},
+        {"id": 3, "name": "浙江省", "score": 85.8, "grade": "B", "rank": 4},
+        {"id": 4, "name": "广东省", "score": 88.5, "grade": "A", "rank": 1},
+        {"id": 5, "name": "山东省", "score": 84.2, "grade": "B", "rank": 6},
+        {"id": 6, "name": "河北省", "score": 82.5, "grade": "B", "rank": 9},
+        {"id": 7, "name": "安徽省", "score": 83.8, "grade": "B", "rank": 8},
+        {"id": 8, "name": "河南省", "score": 81.2, "grade": "B", "rank": 10}
+      ],
+      "averageScore": 84.5,
+      "topProvince": "广东省"
+    }
+  },
+  "trends": {
+    "improving": ["江苏省", "安徽省", "河南省"],
+    "stable": ["广东省", "上海市", "浙江省"],
+    "declining": []
+  },
+  "insights": [
+    "广东省连续 3 年排名第一，综合优势明显",
+    "江苏省 2026 年升级为 A 级，政策优势突出",
+    "河南省从 C 级提升至 B 级，进步显著",
+    "全国平均得分逐年提升，整体投资环境优化"
+  ]
+}
