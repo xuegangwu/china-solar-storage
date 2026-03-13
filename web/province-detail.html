@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>省份详情 - 光储投资地图</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: #f5f7fa;
+            color: #1a1a1a;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header-meta {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* 概览卡片 */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-unit {
+            font-size: 14px;
+            color: #999;
+            margin-left: 4px;
+        }
+        
+        /* 内容网格 */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* 评分雷达图 */
+        .radar-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* 详细信息 */
+        .detail-list {
+            list-style: none;
+        }
+        
+        .detail-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        /* 投资建议 */
+        .grade-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 980px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .grade-A { background: #10b981; color: white; }
+        .grade-B { background: #3b82f6; color: white; }
+        .grade-C { background: #f59e0b; color: white; }
+        .grade-D { background: #ef4444; color: white; }
+        
+        /* 操作按钮 */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #f5f7fa;
+            color: #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8eaf6;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-nav">
+            <button class="back-btn" onclick="goBack()">← 返回地图</button>
+            <span>光储投资地图 · 省份详情</span>
+        </div>
+        <h1 id="province-name">上海市</h1>
+        <div class="header-meta">
+            <span id="province-country">🇨🇳 中国</span> · 
+            <span id="last-update">更新时间：2026-03</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 概览统计 -->
+        <div class="overview-grid">
+            <div class="stat-card">
+                <div class="stat-label">综合得分</div>
+                <div class="stat-value" id="total-score">83.5</div>
+                <div class="stat-unit">分</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">投资等级</div>
+                <div class="stat-value">
+                    <span class="grade-badge grade-B" id="grade-badge">B 级</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">资源禀赋</div>
+                <div class="stat-value" id="resource-score">70</div>
+                <div class="stat-unit">分</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">电价政策</div>
+                <div class="stat-value" id="price-score">90</div>
+                <div class="stat-unit">分</div>
+            </div>
+        </div>
+        
+        <!-- 内容区域 -->
+        <div class="content-grid">
+            <!-- 左侧：图表和详情 -->
+            <div>
+                <!-- 评分雷达图 -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-title">📊 多维度评分分析</div>
+                    <div class="radar-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 历史趋势 -->
+                <div class="card">
+                    <div class="card-title">📈 历史得分趋势</div>
+                    <div class="radar-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：详细信息 -->
+            <div>
+                <!-- 详细信息 -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-title">📋 详细信息</div>
+                    <ul class="detail-list">
+                        <li class="detail-item">
+                            <span class="detail-label">省份名称</span>
+                            <span class="detail-value" id="detail-name">上海市</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">所属国家</span>
+                            <span class="detail-value" id="detail-country">中国</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">资源禀赋得分</span>
+                            <span class="detail-value" id="detail-resource">70</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">电价政策得分</span>
+                            <span class="detail-value" id="detail-price">90</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">市场条件得分</span>
+                            <span class="detail-value" id="detail-market">85</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">电网条件得分</span>
+                            <span class="detail-value" id="detail-grid">90</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">燃煤基准价</span>
+                            <span class="detail-value" id="detail-coal-price">0.4155 元/kWh</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">峰谷价差</span>
+                            <span class="detail-value" id="detail-peak-valley">0.85 元/kWh</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">市场化比例</span>
+                            <span class="detail-value" id="detail-market-ratio">85%</span>
+                        </li>
+                        <li class="detail-item">
+                            <span class="detail-label">年利用小时数</span>
+                            <span class="detail-value" id="detail-hours">1,100 小时</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="addToFavorites()">⭐ 收藏</button>
+                        <button class="btn btn-secondary" onclick="exportData()">📊 导出</button>
+                    </div>
+                </div>
+                
+                <!-- 投资建议 -->
+                <div class="card">
+                    <div class="card-title">💡 投资建议</div>
+                    <p id="investment-advice" style="color: #666; line-height: 1.8; margin-bottom: 15px;">
+                        该地区综合评分为 B 级，推荐投资。电价政策优越，市场化程度高，电网消纳能力强。
+                        建议重点关注工商业分布式项目，充分利用峰谷价差政策获取稳定收益。
+                    </p>
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="calculateROI()">🧮 收益计算</button>
+                        <button class="btn btn-secondary" onclick="compareProvince()">📊 对比分析</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 获取 URL 参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const provinceId = urlParams.get('id');
+        const country = urlParams.get('country') || 'CN';
+        
+        // 模拟数据（实际应从 API 获取）
+        const provinceData = {
+            id: provinceId || 1,
+            name: '上海市',
+            country: '中国',
+            scores: {
+                total: 83.5,
+                resource: 70,
+                price: 90,
+                market: 85,
+                grid: 90
+            },
+            grade: 'B',
+            coalPrice: '0.4155 元/kWh',
+            peakValley: '0.85 元/kWh',
+            marketRatio: '85%',
+            hours: '1,100 小时',
+            history: [
+                { year: '2024', score: 81.2 },
+                { year: '2025', score: 82.8 },
+                { year: '2026', score: 83.5 }
+            ]
+        };
+        
+        // 初始化页面
+        function init() {
+            updatePage();
+            initRadarChart();
+            initTrendChart();
+        }
+        
+        // 更新页面内容
+        function updatePage() {
+            document.getElementById('province-name').textContent = provinceData.name;
+            document.getElementById('province-country').textContent = '🇨🇳 ' + provinceData.country;
+            document.getElementById('total-score').textContent = provinceData.scores.total;
+            document.getElementById('resource-score').textContent = provinceData.scores.resource;
+            document.getElementById('price-score').textContent = provinceData.scores.price;
+            
+            const gradeBadge = document.getElementById('grade-badge');
+            gradeBadge.textContent = provinceData.grade + '级';
+            gradeBadge.className = 'grade-badge grade-' + provinceData.grade;
+            
+            // 更新详细信息
+            document.getElementById('detail-name').textContent = provinceData.name;
+            document.getElementById('detail-country').textContent = provinceData.country;
+            document.getElementById('detail-resource').textContent = provinceData.scores.resource;
+            document.getElementById('detail-price').textContent = provinceData.scores.price;
+            document.getElementById('detail-market').textContent = provinceData.scores.market;
+            document.getElementById('detail-grid').textContent = provinceData.scores.grid;
+            document.getElementById('detail-coal-price').textContent = provinceData.coalPrice;
+            document.getElementById('detail-peak-valley').textContent = provinceData.peakValley;
+            document.getElementById('detail-market-ratio').textContent = provinceData.marketRatio;
+            document.getElementById('detail-hours').textContent = provinceData.hours;
+        }
+        
+        // 初始化雷达图
+        function initRadarChart() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['资源禀赋', '电价政策', '市场条件', '电网条件'],
+                    datasets: [{
+                        label: '得分',
+                        data: [
+                            provinceData.scores.resource,
+                            provinceData.scores.price,
+                            provinceData.scores.market,
+                            provinceData.scores.grid
+                        ],
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgb(102, 126, 234)',
+                        pointBackgroundColor: 'rgb(102, 126, 234)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 初始化趋势图
+        function initTrendChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: provinceData.history.map(h => h.year),
+                    datasets: [{
+                        label: '综合得分',
+                        data: provinceData.history.map(h => h.score),
+                        borderColor: 'rgb(102, 126, 234)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 60,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 返回地图
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 收藏省份
+        function addToFavorites() {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            if (!favorites.find(f => f.id === provinceData.id)) {
+                favorites.push({
+                    id: provinceData.id,
+                    name: provinceData.name,
+                    score: provinceData.scores.total,
+                    grade: provinceData.grade
+                });
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                alert('已添加到收藏夹！');
+            } else {
+                alert('该省份已在收藏夹中！');
+            }
+        }
+        
+        // 导出数据
+        function exportData() {
+            const data = {
+                name: provinceData.name,
+                scores: provinceData.scores,
+                grade: provinceData.grade
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${provinceData.name}-data.json`;
+            a.click();
+        }
+        
+        // 计算收益
+        function calculateROI() {
+            window.open('calculator.html?province=' + provinceData.id, '_blank');
+        }
+        
+        // 对比分析
+        function compareProvince() {
+            const comparison = JSON.parse(localStorage.getItem('comparison') || '[]');
+            if (comparison.length < 3) {
+                comparison.push({
+                    id: provinceData.id,
+                    name: provinceData.name,
+                    score: provinceData.scores.total
+                });
+                localStorage.setItem('comparison', JSON.stringify(comparison));
+                alert('已添加到对比列表！');
+            } else {
+                alert('最多只能对比 3 个省份！');
+            }
+        }
+        
+        // 页面加载时初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

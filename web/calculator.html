@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投资收益计算器 - 光储投资地图</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            font-size: 18px;
+            color: #1a1a1a;
+        }
+        
+        .result-value.highlight {
+            color: #10b981;
+            font-size: 24px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 投资收益计算器</h1>
+            <p>基于省份参数，快速估算光伏储能项目投资回报</p>
+        </div>
+        
+        <div class="grid">
+            <!-- 输入表单 -->
+            <div class="card">
+                <div class="card-title">📝 投资参数</div>
+                
+                <div class="form-group">
+                    <label>选择省份</label>
+                    <select id="province-select">
+                        <option value="1">上海市</option>
+                        <option value="2">江苏省</option>
+                        <option value="3">浙江省</option>
+                        <option value="4">广东省</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>投资规模（万元）</label>
+                    <input type="number" id="investment" value="1000" min="100">
+                </div>
+                
+                <div class="form-group">
+                    <label>装机容量（kW）</label>
+                    <input type="number" id="capacity" value="2000" min="100">
+                </div>
+                
+                <div class="form-group">
+                    <label>储能容量（kWh）</label>
+                    <input type="number" id="storage" value="1000" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label>年利用小时数</label>
+                    <input type="number" id="hours" value="1100" min="500">
+                </div>
+                
+                <div class="form-group">
+                    <label>电价（元/kWh）</label>
+                    <input type="number" id="price" value="0.85" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>运营成本占比（%）</label>
+                    <input type="number" id="opex" value="5" min="0" max="50">
+                </div>
+                
+                <button class="btn" onclick="calculate()">🚀 开始计算</button>
+            </div>
+            
+            <!-- 计算结果 -->
+            <div class="card">
+                <div class="card-title">📊 计算结果</div>
+                
+                <div class="result-item">
+                    <span class="result-label">年发电量</span>
+                    <span class="result-value" id="annual-power">2,200,000 kWh</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">年收入</span>
+                    <span class="result-value" id="annual-revenue">187 万元</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">年运营成本</span>
+                    <span class="result-value" id="annual-opex">9.35 万元</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">年净收益</span>
+                    <span class="result-value highlight" id="annual-profit">177.65 万元</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">投资回收期</span>
+                    <span class="result-value highlight" id="payback">5.6 年</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">内部收益率 (IRR)</span>
+                    <span class="result-value highlight" id="irr">15.8%</span>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="cashflowChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let chart;
+        
+        // 省份参数（实际应从 API 获取）
+        const provinceParams = {
+            1: { hours: 1100, price: 0.85, coalPrice: 0.4155 },
+            2: { hours: 1050, price: 0.78, coalPrice: 0.391 },
+            3: { hours: 1000, price: 0.82, coalPrice: 0.4155 },
+            4: { hours: 1150, price: 0.88, coalPrice: 0.45 }
+        };
+        
+        // 更新省份参数
+        document.getElementById('province-select').addEventListener('change', function() {
+            const params = provinceParams[this.value];
+            document.getElementById('hours').value = params.hours;
+            document.getElementById('price').value = params.price;
+        });
+        
+        // 初始化图表
+        function initChart() {
+            const ctx = document.getElementById('cashflowChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['第 1 年', '第 2 年', '第 3 年', '第 4 年', '第 5 年', 
+                             '第 6 年', '第 7 年', '第 8 年', '第 9 年', '第 10 年'],
+                    datasets: [{
+                        label: '累计现金流',
+                        data: [-1000, -822, -644, -466, -288, -110, 68, 246, 424, 602],
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: 'rgb(102, 126, 234)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: '万元'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 计算函数
+        function calculate() {
+            // 获取输入
+            const investment = parseFloat(document.getElementById('investment').value);
+            const capacity = parseFloat(document.getElementById('capacity').value);
+            const hours = parseFloat(document.getElementById('hours').value);
+            const price = parseFloat(document.getElementById('price').value);
+            const opexRate = parseFloat(document.getElementById('opex').value) / 100;
+            
+            // 计算
+            const annualPower = capacity * hours; // 年发电量
+            const annualRevenue = annualPower * price / 10000; // 年收入（万元）
+            const annualOpex = annualRevenue * opexRate; // 年运营成本
+            const annualProfit = annualRevenue - annualOpex; // 年净收益
+            const payback = investment / annualProfit; // 投资回收期
+            const irr = (1 / payback) * 100; // 简化 IRR 计算
+            
+            // 更新结果
+            document.getElementById('annual-power').textContent = annualPower.toLocaleString() + ' kWh';
+            document.getElementById('annual-revenue').textContent = annualRevenue.toFixed(2) + ' 万元';
+            document.getElementById('annual-opex').textContent = annualOpex.toFixed(2) + ' 万元';
+            document.getElementById('annual-profit').textContent = annualProfit.toFixed(2) + ' 万元';
+            document.getElementById('payback').textContent = payback.toFixed(1) + ' 年';
+            document.getElementById('irr').textContent = irr.toFixed(1) + '%';
+            
+            // 更新图表
+            updateChart(investment, annualProfit);
+        }
+        
+        // 更新图表
+        function updateChart(investment, annualProfit) {
+            const data = [];
+            let cumulative = -investment;
+            for (let i = 0; i < 10; i++) {
+                cumulative += annualProfit;
+                data.push(cumulative);
+            }
+            
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+        
+        // 初始化
+        window.onload = function() {
+            initChart();
+            calculate();
+        };
+    </script>
+</body>
+</html>
