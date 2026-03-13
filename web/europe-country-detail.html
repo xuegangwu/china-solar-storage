@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国家详情 - 欧洲区</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dark-theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 16px;
+            opacity: 0.9;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            opacity: 1;
+        }
+        
+        .country-flag {
+            font-size: 48px;
+            margin-right: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="europe-map.html" class="back-link">← 返回欧洲地图</a>
+        <div style="display: flex; align-items: center; margin-top: 16px;">
+            <span class="country-flag" id="country-flag">🇩🇪</span>
+            <div>
+                <h1 id="country-name" style="font-size: 32px; margin-bottom: 8px;">德国</h1>
+                <p id="country-capital" style="opacity: 0.9;">首都：柏林 · 西欧地区 · 欧盟成员国</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <!-- 概览统计 -->
+        <div class="overview-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 12px;">
+                <div class="stat-label">综合得分</div>
+                <div class="stat-value" id="total-score" style="font-size: 32px; font-weight: 700; color: #3b82f6;">88.5</div>
+                <div class="stat-unit">分</div>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 12px;">
+                <div class="stat-label">投资等级</div>
+                <div class="stat-value">
+                    <span class="grade-badge grade-A" id="grade-badge" style="padding: 6px 16px; border-radius: 980px; font-weight: 700;">A 级</span>
+                </div>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 12px;">
+                <div class="stat-label">欧盟成员</div>
+                <div class="stat-value" style="font-size: 24px; color: #10b981;">✅ 是</div>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 12px;">
+                <div class="stat-label">所在区域</div>
+                <div class="stat-value" style="font-size: 20px; color: #667eea;">西欧</div>
+            </div>
+        </div>
+        
+        <!-- 内容区域 -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <!-- 左侧：图表和详情 -->
+            <div>
+                <!-- 评分雷达图 -->
+                <div class="card" style="background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+                    <div class="card-title" style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">📊 多维度评分分析</div>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 历史趋势 -->
+                <div class="card" style="background: white; border-radius: 12px; padding: 24px;">
+                    <div class="card-title" style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">📈 历史得分趋势</div>
+                    <div style="position: relative; height: 250px;">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：详细信息 -->
+            <div>
+                <!-- 详细信息 -->
+                <div class="card" style="background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+                    <div class="card-title" style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">📋 详细参数</div>
+                    <ul class="detail-list" style="list-style: none; padding: 0;">
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">燃煤基准价</span>
+                            <span style="font-weight: 600;" id="coal-price">0.32 €/kWh</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">峰谷价差</span>
+                            <span style="font-weight: 600;" id="peak-valley">0.45 €/kWh</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">上网电价</span>
+                            <span style="font-weight: 600;" id="feed-tariff">0.085 €/kWh</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">年利用小时</span>
+                            <span style="font-weight: 600;" id="utilization">1,050 小时</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">太阳能辐照度</span>
+                            <span style="font-weight: 600;" id="irradiation">1,150 kWh/m²</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">补贴力度</span>
+                            <span style="font-weight: 600;" id="subsidy">15%</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">碳价</span>
+                            <span style="font-weight: 600;" id="carbon-price">85 €/tCO₂</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">土地成本</span>
+                            <span style="font-weight: 600;" id="land-cost">200 €/m²</span>
+                        </li>
+                        <li style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">人力成本</span>
+                            <span style="font-weight: 600;" id="labor-cost">12,000 €/年</span>
+                        </li>
+                        <li style="padding: 12px 0; display: flex; justify-content: space-between;">
+                            <span style="color: #666;">税收优惠</span>
+                            <span style="font-weight: 600;" id="tax-incentive">25%</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 主要政策 -->
+                <div class="card" style="background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
+                    <div class="card-title" style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">📜 主要政策</div>
+                    <div id="policy-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="actions" style="display: flex; gap: 12px; flex-direction: column;">
+                    <button class="btn" style="padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;" onclick="calculateROI()">
+                        🧮 收益计算
+                    </button>
+                    <button class="btn" style="padding: 14px; background: #f5f7fa; color: #667eea; border: 2px solid #667eea; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;" onclick="addToFavorites()">
+                        ⭐ 收藏
+                    </button>
+                    <button class="btn" style="padding: 14px; background: #f5f7fa; color: #667eea; border: 2px solid #667eea; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;" onclick="compareCountry()">
+                        📊 对比分析
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        // 模拟数据（实际应从 API 获取）
+        const countryData = {
+            id: 101,
+            name: '德国',
+            nameEn: 'Germany',
+            flag: '🇩🇪',
+            capital: '柏林',
+            region: '西欧',
+            euMember: true,
+            scores: {
+                total: 88.5,
+                resource: 72,
+                price: 95,
+                market: 92,
+                grid: 90,
+                policy: 95,
+                risk: 88
+            },
+            grade: 'A',
+            data: {
+                coalPrice: 0.32,
+                peakValley: 0.45,
+                feedInTariff: 0.085,
+                utilizationHours: 1050,
+                solarIrradiation: 1150,
+                landCost: 200,
+                laborCost: 12000,
+                subsidy: 0.15,
+                carbonPrice: 85,
+                taxIncentive: 25
+            },
+            history: [
+                {year: 2024, score: 86.2, grade: 'A'},
+                {year: 2025, score: 87.5, grade: 'A'},
+                {year: 2026, score: 88.5, grade: 'A'}
+            ],
+            policies: [
+                '可再生能源法（EEG 2023）',
+                '碳定价机制',
+                '2030 年可再生能源占比 80% 目标'
+            ]
+        };
+        
+        // 初始化页面
+        function init() {
+            // 更新页面内容
+            document.getElementById('country-name').textContent = countryData.name;
+            document.getElementById('country-flag').textContent = countryData.flag;
+            document.getElementById('country-capital').textContent = 
+                `首都：${countryData.capital} · ${countryData.region}地区 · ${countryData.euMember ? '✅ 欧盟成员国' : '❌ 非欧盟'}`;
+            
+            document.getElementById('total-score').textContent = countryData.scores.total;
+            document.getElementById('grade-badge').textContent = countryData.grade + '级';
+            document.getElementById('grade-badge').className = `grade-badge grade-${countryData.grade}`;
+            
+            // 更新详细参数
+            document.getElementById('coal-price').textContent = `${countryData.data.coalPrice.toFixed(2)} €/kWh`;
+            document.getElementById('peak-valley').textContent = `${countryData.data.peakValley.toFixed(2)} €/kWh`;
+            document.getElementById('feed-tariff').textContent = `${countryData.data.feedInTariff.toFixed(3)} €/kWh`;
+            document.getElementById('utilization').textContent = `${countryData.data.utilizationHours.toLocaleString()} 小时`;
+            document.getElementById('irradiation').textContent = `${countryData.data.solarIrradiation.toLocaleString()} kWh/m²`;
+            document.getElementById('subsidy').textContent = `${(countryData.data.subsidy * 100).toFixed(0)}%`;
+            document.getElementById('carbon-price').textContent = `${countryData.data.carbonPrice} €/tCO₂`;
+            document.getElementById('land-cost').textContent = `${countryData.data.landCost} €/m²`;
+            document.getElementById('labor-cost').textContent = `${countryData.data.laborCost.toLocaleString()} €/年`;
+            document.getElementById('tax-incentive').textContent = `${countryData.data.taxIncentive}%`;
+            
+            // 更新政策列表
+            const policyList = document.getElementById('policy-list');
+            policyList.innerHTML = countryData.policies.map(policy => `
+                <div style="padding: 12px; background: #f5f7fa; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="font-size: 14px; color: #1a1a1a;">${policy}</div>
+                </div>
+            `).join('');
+            
+            // 初始化图表
+            initRadarChart();
+            initTrendChart();
+        }
+        
+        // 初始化雷达图
+        function initRadarChart() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['资源禀赋', '电价政策', '市场条件', '电网条件', '政策稳定性', '风险评估'],
+                    datasets: [{
+                        label: '得分',
+                        data: [
+                            countryData.scores.resource,
+                            countryData.scores.price,
+                            countryData.scores.market,
+                            countryData.scores.grid,
+                            countryData.scores.policy,
+                            countryData.scores.risk
+                        ],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 初始化趋势图
+        function initTrendChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: countryData.history.map(h => h.year.toString()),
+                    datasets: [{
+                        label: '综合得分',
+                        data: countryData.history.map(h => h.score),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 70,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 收藏国家
+        window.addToFavorites = function() {
+            const favorites = JSON.parse(localStorage.getItem('europeFavorites') || '[]');
+            if (!favorites.find(f => f.id === countryData.id)) {
+                favorites.push({
+                    id: countryData.id,
+                    name: countryData.name,
+                    score: countryData.scores.total,
+                    grade: countryData.grade
+                });
+                localStorage.setItem('europeFavorites', JSON.stringify(favorites));
+                alert('已添加到收藏夹！');
+            } else {
+                alert('该国家已在收藏夹中！');
+            }
+        };
+        
+        // 对比分析
+        window.compareCountry = function() {
+            const comparison = JSON.parse(localStorage.getItem('europeComparison') || '[]');
+            if (comparison.length < 3) {
+                comparison.push({
+                    id: countryData.id,
+                    name: countryData.name,
+                    score: countryData.scores.total
+                });
+                localStorage.setItem('europeComparison', JSON.stringify(comparison));
+                alert('已添加到对比列表！');
+            } else {
+                alert('最多只能对比 3 个国家！');
+            }
+        };
+        
+        // 收益计算
+        window.calculateROI = function() {
+            window.open(`calculator.html?country=${countryData.id}&region=europe`, '_blank');
+        };
+        
+        // 页面加载时初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

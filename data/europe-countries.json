@@ -1,0 +1,410 @@
+{
+  "version": "2026.1-EU",
+  "updateDate": "2026-03-13",
+  "region": "Europe",
+  "countries": [
+    {
+      "id": 101,
+      "name": "德国",
+      "nameEn": "Germany",
+      "code": "DE",
+      "capital": "柏林",
+      "region": "西欧",
+      "euMember": true,
+      "scores": {
+        "total": 88.5,
+        "resource": 72,
+        "price": 95,
+        "market": 92,
+        "grid": 90,
+        "policy": 95,
+        "risk": 88
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.32,
+        "peakValley": 0.45,
+        "marketRatio": 95,
+        "utilizationHours": 1050,
+        "solarIrradiation": 1150,
+        "landCost": 200,
+        "laborCost": 12000,
+        "gridCapacity": 90,
+        "policyStability": 95,
+        "exchangeRisk": 0,
+        "taxIncentive": 25,
+        "subsidy": 0.15,
+        "feedInTariff": 0.085,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 86.2, "grade": "A"},
+        {"year": 2025, "score": 87.5, "grade": "A"},
+        {"year": 2026, "score": 88.5, "grade": "A"}
+      ],
+      "policies": [
+        "可再生能源法（EEG 2023）",
+        "碳定价机制",
+        "2030 年可再生能源占比 80% 目标"
+      ]
+    },
+    {
+      "id": 102,
+      "name": "西班牙",
+      "nameEn": "Spain",
+      "code": "ES",
+      "capital": "马德里",
+      "region": "南欧",
+      "euMember": true,
+      "scores": {
+        "total": 90.2,
+        "resource": 95,
+        "price": 88,
+        "market": 85,
+        "grid": 82,
+        "policy": 90,
+        "risk": 85
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.28,
+        "peakValley": 0.38,
+        "marketRatio": 88,
+        "utilizationHours": 1650,
+        "solarIrradiation": 1850,
+        "landCost": 80,
+        "laborCost": 8000,
+        "gridCapacity": 82,
+        "policyStability": 90,
+        "exchangeRisk": 0,
+        "taxIncentive": 30,
+        "subsidy": 0.12,
+        "feedInTariff": 0.075,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 87.5, "grade": "A"},
+        {"year": 2025, "score": 89.0, "grade": "A"},
+        {"year": 2026, "score": 90.2, "grade": "A"}
+      ],
+      "policies": [
+        "国家能源与气候计划（PNIEC）",
+        "可再生能源拍卖机制",
+        "2030 年可再生能源占比 74% 目标"
+      ]
+    },
+    {
+      "id": 103,
+      "name": "意大利",
+      "nameEn": "Italy",
+      "code": "IT",
+      "capital": "罗马",
+      "region": "南欧",
+      "euMember": true,
+      "scores": {
+        "total": 87.8,
+        "resource": 90,
+        "price": 92,
+        "market": 82,
+        "grid": 80,
+        "policy": 88,
+        "risk": 82
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.30,
+        "peakValley": 0.42,
+        "marketRatio": 85,
+        "utilizationHours": 1450,
+        "solarIrradiation": 1650,
+        "landCost": 120,
+        "laborCost": 9000,
+        "gridCapacity": 80,
+        "policyStability": 88,
+        "exchangeRisk": 0,
+        "taxIncentive": 28,
+        "subsidy": 0.13,
+        "feedInTariff": 0.080,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 85.0, "grade": "B"},
+        {"year": 2025, "score": 86.5, "grade": "A"},
+        {"year": 2026, "score": 87.8, "grade": "A"}
+      ],
+      "policies": [
+        "国家能源与气候综合计划（PNIEC）",
+        "超级折旧税收优惠",
+        "2030 年可再生能源占比 65% 目标"
+      ]
+    },
+    {
+      "id": 104,
+      "name": "法国",
+      "nameEn": "France",
+      "code": "FR",
+      "capital": "巴黎",
+      "region": "西欧",
+      "euMember": true,
+      "scores": {
+        "total": 85.5,
+        "resource": 75,
+        "price": 90,
+        "market": 88,
+        "grid": 92,
+        "policy": 85,
+        "risk": 85
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.31,
+        "peakValley": 0.40,
+        "marketRatio": 90,
+        "utilizationHours": 1150,
+        "solarIrradiation": 1250,
+        "landCost": 150,
+        "laborCost": 11000,
+        "gridCapacity": 92,
+        "policyStability": 85,
+        "exchangeRisk": 0,
+        "taxIncentive": 22,
+        "subsidy": 0.11,
+        "feedInTariff": 0.078,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 83.2, "grade": "B"},
+        {"year": 2025, "score": 84.5, "grade": "B"},
+        {"year": 2026, "score": 85.5, "grade": "B"}
+      ],
+      "policies": [
+        "多年能源规划（PPE）",
+        "可再生能源招标制度",
+        "2030 年可再生能源占比 40% 目标"
+      ]
+    },
+    {
+      "id": 105,
+      "name": "荷兰",
+      "nameEn": "Netherlands",
+      "code": "NL",
+      "capital": "阿姆斯特丹",
+      "region": "西欧",
+      "euMember": true,
+      "scores": {
+        "total": 86.8,
+        "resource": 68,
+        "price": 92,
+        "market": 95,
+        "grid": 95,
+        "policy": 92,
+        "risk": 90
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.33,
+        "peakValley": 0.48,
+        "marketRatio": 98,
+        "utilizationHours": 950,
+        "solarIrradiation": 1050,
+        "landCost": 250,
+        "laborCost": 13000,
+        "gridCapacity": 95,
+        "policyStability": 92,
+        "exchangeRisk": 0,
+        "taxIncentive": 20,
+        "subsidy": 0.10,
+        "feedInTariff": 0.082,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 84.5, "grade": "B"},
+        {"year": 2025, "score": 85.8, "grade": "B"},
+        {"year": 2026, "score": 86.8, "grade": "A"}
+      ],
+      "policies": [
+        "可持续增长能源计划（SDE++）",
+        "海上风电路线图",
+        "2030 年可再生能源占比 70% 目标"
+      ]
+    },
+    {
+      "id": 106,
+      "name": "葡萄牙",
+      "nameEn": "Portugal",
+      "code": "PT",
+      "capital": "里斯本",
+      "region": "南欧",
+      "euMember": true,
+      "scores": {
+        "total": 89.5,
+        "resource": 92,
+        "price": 85,
+        "market": 82,
+        "grid": 80,
+        "policy": 92,
+        "risk": 88
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.27,
+        "peakValley": 0.36,
+        "marketRatio": 80,
+        "utilizationHours": 1550,
+        "solarIrradiation": 1750,
+        "landCost": 70,
+        "laborCost": 7000,
+        "gridCapacity": 80,
+        "policyStability": 92,
+        "exchangeRisk": 0,
+        "taxIncentive": 32,
+        "subsidy": 0.14,
+        "feedInTariff": 0.072,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 86.8, "grade": "A"},
+        {"year": 2025, "score": 88.2, "grade": "A"},
+        {"year": 2026, "score": 89.5, "grade": "A"}
+      ],
+      "policies": [
+        "国家能源与气候计划 2030",
+        "绿色氢能战略",
+        "2030 年可再生能源占比 85% 目标"
+      ]
+    },
+    {
+      "id": 107,
+      "name": "波兰",
+      "nameEn": "Poland",
+      "code": "PL",
+      "capital": "华沙",
+      "region": "东欧",
+      "euMember": true,
+      "scores": {
+        "total": 82.5,
+        "resource": 70,
+        "price": 78,
+        "market": 80,
+        "grid": 75,
+        "policy": 85,
+        "risk": 80
+      },
+      "grade": "B",
+      "data": {
+        "coalPrice": 0.25,
+        "peakValley": 0.32,
+        "marketRatio": 75,
+        "utilizationHours": 1100,
+        "solarIrradiation": 1150,
+        "landCost": 50,
+        "laborCost": 5000,
+        "gridCapacity": 75,
+        "policyStability": 85,
+        "exchangeRisk": 0,
+        "taxIncentive": 18,
+        "subsidy": 0.08,
+        "feedInTariff": 0.065,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 78.5, "grade": "C"},
+        {"year": 2025, "score": 80.5, "grade": "B"},
+        {"year": 2026, "score": 82.5, "grade": "B"}
+      ],
+      "policies": [
+        "能源政策 2040",
+        "可再生能源支持计划",
+        "2030 年可再生能源占比 50% 目标"
+      ]
+    },
+    {
+      "id": 108,
+      "name": "希腊",
+      "nameEn": "Greece",
+      "code": "GR",
+      "capital": "雅典",
+      "region": "南欧",
+      "euMember": true,
+      "scores": {
+        "total": 88.2,
+        "resource": 94,
+        "price": 82,
+        "market": 78,
+        "grid": 75,
+        "policy": 90,
+        "risk": 82
+      },
+      "grade": "A",
+      "data": {
+        "coalPrice": 0.26,
+        "peakValley": 0.35,
+        "marketRatio": 72,
+        "utilizationHours": 1600,
+        "solarIrradiation": 1800,
+        "landCost": 60,
+        "laborCost": 6000,
+        "gridCapacity": 75,
+        "policyStability": 90,
+        "exchangeRisk": 0,
+        "taxIncentive": 35,
+        "subsidy": 0.16,
+        "feedInTariff": 0.070,
+        "carbonPrice": 85
+      },
+      "history": [
+        {"year": 2024, "score": 84.5, "grade": "B"},
+        {"year": 2025, "score": 86.5, "grade": "A"},
+        {"year": 2026, "score": 88.2, "grade": "A"}
+      ],
+      "policies": [
+        "国家能源与气候计划",
+        "绿色转型战略",
+        "2030 年可再生能源占比 80% 目标"
+      ]
+    }
+  ],
+  "regionalInsights": {
+    "averageScore": 87.4,
+    "topCountry": "西班牙",
+    "totalCapacity": "250 GW",
+    "growthRate": "15%/年",
+    "keyTrends": [
+      "欧盟碳边境调节机制（CBAM）推动可再生能源发展",
+      "REPowerEU 计划加速能源独立",
+      "电价高涨提升光储经济性",
+      "电网升级成为发展瓶颈",
+      "绿色氢能成为新增长点"
+    ],
+    "investmentOpportunities": [
+      "南欧国家资源禀赋优越，适合大型地面电站",
+      "西欧国家电价高企，工商业分布式潜力巨大",
+      "东欧国家成本优势明显，新兴市场机会",
+      "海上风电 + 储能成为新趋势",
+      "虚拟电厂（VPP）商业模式成熟"
+    ],
+    "risks": [
+      "欧盟政策变化风险",
+      "电网接入延迟",
+      "原材料价格波动",
+      "劳动力成本上升",
+      "许可审批流程复杂"
+    ]
+  },
+  "comparison": {
+    "vsChina": {
+      "advantages": [
+        "电价更高（平均 0.30 欧元/kWh vs 0.08 欧元/kWh）",
+        "政策更稳定（欧盟框架）",
+        "碳价机制成熟",
+        "电力市场化程度高"
+      ],
+      "disadvantages": [
+        "资源禀赋较低（除南欧外）",
+        "土地和人力成本高",
+        "审批流程复杂",
+        "电网接入周期长"
+      ]
+    }
+  }
+}
