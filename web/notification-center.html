@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通知中心 - 光储投资地图</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dark-theme.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #1a1a1a;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary {
+            background: #f5f7fa;
+            color: #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8eaf6;
+        }
+        
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .notification-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+        
+        .notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        
+        .notification-item.unread {
+            border-left-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .notification-item.read {
+            opacity: 0.7;
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .notification-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 980px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .type-policy { background: #fee; color: #c00; }
+        .type-price { background: #eff; color: #066; }
+        .type-update { background: #efe; color: #060; }
+        .type-system { background: #eef; color: #006; }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .notification-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .notification-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 980px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-tab:hover {
+            border-color: #667eea;
+        }
+        
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 980px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🔔 通知中心</h1>
+                <p style="color: #666; margin-top: 4px;">
+                    实时接收政策变化、电价调整等重要通知
+                    <span id="unread-badge" class="badge" style="display: none;">0</span>
+                </p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="markAllAsRead()">✓ 全部已读</button>
+                <button class="btn btn-secondary" onclick="testNotification()">🧪 测试通知</button>
+            </div>
+        </div>
+        
+        <!-- 筛选标签 -->
+        <div class="filter-tabs">
+            <div class="filter-tab active" data-filter="all">全部</div>
+            <div class="filter-tab" data-filter="policy">📢 政策变化</div>
+            <div class="filter-tab" data-filter="price">💰 电价调整</div>
+            <div class="filter-tab" data-filter="update">🔄 系统更新</div>
+            <div class="filter-tab" data-filter="system">⚙️ 系统通知</div>
+            <div class="filter-tab" data-filter="unread">📭 未读</div>
+        </div>
+        
+        <!-- 通知列表 -->
+        <div class="notification-list" id="notification-list">
+            <!-- 动态填充 -->
+        </div>
+        
+        <!-- 空状态 -->
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <h2>📭 暂无通知</h2>
+            <p>当有政策变化、电价调整时，会在这里显示通知</p>
+        </div>
+    </div>
+    
+    <script type="module">
+        import apiService from './js/api-service.js';
+        
+        let currentFilter = 'all';
+        
+        // 加载通知列表
+        async function loadNotifications() {
+            try {
+                const unread = currentFilter === 'unread';
+                const type = currentFilter !== 'all' && currentFilter !== 'unread' ? currentFilter : undefined;
+                
+                const response = await apiService.request(`/notifications?type=${type || 'all'}&unread=${unread}`);
+                
+                const list = document.getElementById('notification-list');
+                const emptyState = document.getElementById('empty-state');
+                const unreadBadge = document.getElementById('unread-badge');
+                
+                if (response.data.length === 0) {
+                    list.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    list.style.display = 'flex';
+                    emptyState.style.display = 'none';
+                    
+                    list.innerHTML = response.data.map(notif => `
+                        <div class="notification-item ${notif.read ? 'read' : 'unread'}" 
+                             onclick="markAsRead('${notif.id}')">
+                            <div class="notification-header">
+                                <span class="notification-type type-${notif.type}">${getTypeName(notif.type)}</span>
+                                <span class="notification-time">${formatTime(notif.createdAt)}</span>
+                            </div>
+                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-content">${notif.content}</div>
+                            ${!notif.read ? `
+                                <div class="notification-actions">
+                                    <button class="btn btn-secondary" onclick="event.stopPropagation(); markAsRead('${notif.id}')">
+                                        标记为已读
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+                
+                // 更新未读数
+                const unreadCount = response.unreadCount || 0;
+                if (unreadCount > 0) {
+                    unreadBadge.style.display = 'inline-block';
+                    unreadBadge.textContent = unreadCount;
+                } else {
+                    unreadBadge.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('加载通知失败:', error);
+            }
+        }
+        
+        // 获取类型名称
+        function getTypeName(type) {
+            const names = {
+                policy: '📢 政策变化',
+                price: '💰 电价调整',
+                update: '🔄 系统更新',
+                system: '⚙️ 系统通知'
+            };
+            return names[type] || type;
+        }
+        
+        // 格式化时间
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return '刚刚';
+            if (minutes < 60) return `${minutes}分钟前`;
+            if (hours < 24) return `${hours}小时前`;
+            if (days < 7) return `${days}天前`;
+            return date.toLocaleDateString('zh-CN');
+        }
+        
+        // 标记为已读
+        window.markAsRead = async function(id) {
+            try {
+                await apiService.request(`/notifications/${id}/read`, { method: 'PUT' });
+                loadNotifications();
+            } catch (error) {
+                console.error('标记失败:', error);
+            }
+        };
+        
+        // 全部已读
+        window.markAllAsRead = async function() {
+            try {
+                await apiService.request('/notifications/read-all', { method: 'PUT' });
+                loadNotifications();
+            } catch (error) {
+                console.error('操作失败:', error);
+            }
+        };
+        
+        // 测试通知
+        window.testNotification = async function() {
+            try {
+                const response = await apiService.request('/notifications/test', { method: 'POST' });
+                if (response.success) {
+                    alert('✅ 测试通知已发送，请刷新查看');
+                    loadNotifications();
+                }
+            } catch (error) {
+                alert('发送失败：' + error.message);
+            }
+        };
+        
+        // 筛选切换
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                loadNotifications();
+            });
+        });
+        
+        // 每 30 秒自动刷新
+        setInterval(loadNotifications, 30000);
+        
+        // 初始化
+        loadNotifications();
+    </script>
+</body>
+</html>

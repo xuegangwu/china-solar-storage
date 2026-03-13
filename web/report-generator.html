@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成报告 - 光储投资地图</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dark-theme.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-item:hover {
+            background: #e8eaf6;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+        
+        .template-list {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .template-item {
+            padding: 16px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .template-item:hover {
+            background: #e8eaf6;
+        }
+        
+        .template-item.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+        
+        .template-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .template-desc {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #efe;
+            color: #0a0;
+            border: 1px solid #cfc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 生成投资分析报告</h1>
+            <p>选择省份和模板，自动生成专业分析报告</p>
+        </div>
+        
+        <div class="grid">
+            <!-- 左侧：省份选择 -->
+            <div class="card">
+                <div class="card-title">1️⃣ 选择省份</div>
+                <div class="checkbox-group" id="province-list">
+                    <!-- 动态填充 -->
+                </div>
+            </div>
+            
+            <!-- 右侧：模板选择 -->
+            <div class="card">
+                <div class="card-title">2️⃣ 选择报告模板</div>
+                <div class="template-list" id="template-list">
+                    <div class="template-item selected" data-template="standard">
+                        <div class="template-name">📋 标准分析报告</div>
+                        <div class="template-desc">包含省份基本信息、评分对比、投资建议（5 页）</div>
+                    </div>
+                    <div class="template-item" data-template="detailed">
+                        <div class="template-name">📖 详细分析报告</div>
+                        <div class="template-desc">完整的历史数据、趋势分析、收益预测（15 页）</div>
+                    </div>
+                    <div class="template-item" data-template="executive">
+                        <div class="template-name">💼 决策简报</div>
+                        <div class="template-desc">面向高层的简洁决策报告（3 页）</div>
+                    </div>
+                    <div class="template-item" data-template="comparison">
+                        <div class="template-name">📊 多省对比报告</div>
+                        <div class="template-desc">专注于多个省份的对比分析（8 页）</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 配置选项 -->
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">3️⃣ 配置选项</div>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" id="include-charts" checked>
+                    <span>📈 包含图表</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="include-recommendations" checked>
+                    <span>💡 包含投资建议</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="include-history">
+                    <span>📅 包含历史数据</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="email-report">
+                    <span>📧 邮件发送副本</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- 生成按钮 -->
+        <div class="card" style="margin-top: 20px;">
+            <div id="alert-container"></div>
+            <button class="btn btn-primary" onclick="generateReport()">
+                🚀 生成报告
+            </button>
+        </div>
+    </div>
+    
+    <script type="module">
+        import apiService from './js/api-service.js';
+        
+        let selectedProvinces = [];
+        let selectedTemplate = 'standard';
+        
+        // 加载省份列表
+        async function loadProvinces() {
+            try {
+                const response = await apiService.getProvinces();
+                const provinceList = document.getElementById('province-list');
+                
+                provinceList.innerHTML = response.data.map(province => `
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="${province.id}" onchange="toggleProvince(${province.id}, this.checked)">
+                        <span>${province.name} (${province.scores.total}分 - ${province.grade}级)</span>
+                    </label>
+                `).join('');
+            } catch (error) {
+                showAlert('加载省份失败：' + error.message);
+            }
+        }
+        
+        // 切换省份选择
+        window.toggleProvince = function(id, checked) {
+            if (checked) {
+                selectedProvinces.push(id);
+            } else {
+                selectedProvinces = selectedProvinces.filter(pid => pid !== id);
+            }
+        };
+        
+        // 选择模板
+        document.querySelectorAll('.template-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.template-item').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedTemplate = this.dataset.template;
+            });
+        });
+        
+        // 生成报告
+        window.generateReport = async function() {
+            if (selectedProvinces.length === 0) {
+                showAlert('请至少选择一个省份');
+                return;
+            }
+            
+            const includeCharts = document.getElementById('include-charts').checked;
+            const includeRecommendations = document.getElementById('include-recommendations').checked;
+            
+            try {
+                const response = await apiService.generateReport(
+                    selectedProvinces,
+                    'pdf',
+                    includeCharts,
+                    includeRecommendations
+                );
+                
+                if (response.success) {
+                    showAlert(`报告生成成功！${response.data.title}`, 'success');
+                    
+                    // 自动下载
+                    setTimeout(() => {
+                        window.location.href = response.data.downloadUrl;
+                    }, 1000);
+                }
+            } catch (error) {
+                showAlert('报告生成失败：' + error.message);
+            }
+        };
+        
+        // 显示提示
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `
+                <div class="alert alert-${type}">${message}</div>
+            `;
+        }
+        
+        // 初始化
+        loadProvinces();
+    </script>
+</body>
+</html>
