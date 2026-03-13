@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# 光储投资地图 - 一键部署脚本
-# 服务器：121.43.69.200
-# 使用方法：ssh root@121.43.69.200 "bash -s" < deploy.sh
+# 光储投资地图 - 自动化部署脚本（兼容版）
+# 支持：Ubuntu/Debian, CentOS/RHEL, Alibaba Cloud Linux
 
 set -e
 
@@ -41,15 +40,67 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# 检测操作系统和包管理器
+detect_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$ID
+        log_info "检测到操作系统：$OS ($PRETTY_NAME)"
+    else
+        log_error "无法检测操作系统版本"
+        exit 1
+    fi
+}
+
+# 根据系统选择包管理器
+setup_package_manager() {
+    case $OS in
+        ubuntu|debian)
+            PM="apt"
+            PM_UPDATE="apt update -y"
+            PM_UPGRADE="apt upgrade -y"
+            PM_INSTALL="apt install -y"
+            ;;
+        centos|rhel|alinux|almalinux|rocky)
+            PM="yum"
+            PM_UPDATE="yum makecache"
+            PM_UPGRADE="yum update -y"
+            PM_INSTALL="yum install -y"
+            ;;
+        *)
+            log_error "不支持的操作系统：$OS"
+            exit 1
+            ;;
+    esac
+    
+    log_info "使用包管理器：$PM"
+}
+
 # 1. 系统更新
-log_info "[1/8] 更新系统..."
-apt update -y
-apt upgrade -y
+log_info "[1/9] 更新系统..."
+$PM_UPDATE
+$PM_UPGRADE
 log_success "系统更新完成"
 
 # 2. 安装依赖
-log_info "[2/8] 安装基础软件..."
-apt install -y nodejs npm git nginx curl wget ufw
+log_info "[2/9] 安装基础软件..."
+
+case $OS in
+    ubuntu|debian)
+        $PM_INSTALL nodejs npm git nginx curl wget ufw
+        ;;
+    centos|rhel|alinux|almalinux|rocky)
+        # 安装 EPEL 仓库
+        $PM_INSTALL epel-release -y
+        
+        # 安装 Node.js 18 (使用 NodeSource)
+        curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+        
+        # 安装其他软件
+        $PM_INSTALL nodejs git nginx curl wget firewalld -y
+        ;;
+esac
+
 log_success "基础软件安装完成"
 
 # 验证 Node.js
@@ -59,29 +110,29 @@ log_info "Node.js: $NODE_VERSION"
 log_info "npm: $NPM_VERSION"
 
 # 3. 安装 PM2
-log_info "[3/8] 安装 PM2..."
+log_info "[3/9] 安装 PM2..."
 npm install -g pm2
 log_success "PM2 安装完成 ($(pm2 -v))"
 
 # 4. 创建应用目录
-log_info "[4/8] 创建应用目录..."
+log_info "[4/9] 创建应用目录..."
 mkdir -p /var/www/solar-storage-map
 cd /var/www/solar-storage-map
 log_success "应用目录创建完成"
 
 # 5. 克隆代码
-log_info "[5/8] 克隆代码..."
+log_info "[5/9] 克隆代码..."
 git clone https://github.com/xuegangwu/china-solar-storage.git .
 log_success "代码克隆完成"
 
 # 6. 安装后端依赖
-log_info "[6/8] 安装后端依赖..."
+log_info "[6/9] 安装后端依赖..."
 cd /var/www/solar-storage-map/server
 npm install
 log_success "后端依赖安装完成"
 
 # 7. 配置环境变量
-log_info "[7/8] 配置环境变量..."
+log_info "[7/9] 配置环境变量..."
 JWT_SECRET=$(openssl rand -base64 32)
 
 cat > .env << EOF
@@ -90,13 +141,19 @@ PORT=3001
 DB_DIALECT=sqlite
 DB_STORAGE=/var/www/solar-storage-map/server/storage/db/nocobase.db
 JWT_SECRET=$JWT_SECRET
+FRONTEND_URL=http://121.43.69.200
+API_URL=http://121.43.69.200:3001
 EOF
 
 log_success "环境变量配置完成"
 
-# 8. 配置 Nginx
-log_info "[8/8] 配置 Nginx..."
-cat > /etc/nginx/sites-available/solar-storage-map << 'NGINX_EOF'
+# 8. 配置 Web 服务器
+log_info "[8/9] 配置 Web 服务器..."
+
+case $OS in
+    ubuntu|debian)
+        # 创建 Nginx 配置
+        cat > /etc/nginx/sites-available/solar-storage-map << 'NGINX_EOF'
 server {
     listen 80;
     server_name 121.43.69.200;
@@ -141,20 +198,94 @@ server {
 }
 NGINX_EOF
 
-# 启用配置
-ln -sf /etc/nginx/sites-available/solar-storage-map /etc/nginx/sites-enabled/solar-storage-map
-rm -f /etc/nginx/sites-enabled/default
+        # 启用配置
+        ln -sf /etc/nginx/sites-available/solar-storage-map /etc/nginx/sites-enabled/solar-storage-map
+        rm -f /etc/nginx/sites-enabled/default
+        
+        # 测试并重启
+        nginx -t
+        systemctl restart nginx
+        systemctl enable nginx
+        ;;
+        
+    centos|rhel|alinux|almalinux|rocky)
+        # 创建 Nginx 配置
+        cat > /etc/nginx/conf.d/solar-storage-map.conf << 'NGINX_EOF'
+server {
+    listen 80;
+    server_name 121.43.69.200;
+    
+    # 前端静态文件
+    location / {
+        root /var/www/solar-storage-map/web;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+        
+        # Gzip 压缩
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json application/javascript;
+    }
+    
+    # API 反向代理
+    location /api {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # 超时设置
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+    
+    # 静态资源缓存
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        root /var/www/solar-storage-map/web;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+NGINX_EOF
 
-# 测试 Nginx 配置
-nginx -t
-log_success "Nginx 配置完成"
+        # 测试并重启
+        nginx -t
+        systemctl restart nginx
+        systemctl enable nginx
+        ;;
+esac
+
+log_success "Web 服务器配置完成"
 
 # 9. 配置防火墙
-log_info "配置防火墙..."
-ufw allow 22/tcp || true
-ufw allow 80/tcp || true
-ufw allow 443/tcp || true
-ufw allow 3001/tcp || true
+log_info "[9/9] 配置防火墙..."
+
+case $OS in
+    ubuntu|debian)
+        # 使用 UFW
+        ufw allow 22/tcp || true
+        ufw allow 80/tcp || true
+        ufw allow 443/tcp || true
+        ufw allow 3001/tcp || true
+        ufw --force enable || true
+        ;;
+    centos|rhel|alinux|almalinux|rocky)
+        # 使用 firewalld
+        firewall-cmd --permanent --add-service=ssh
+        firewall-cmd --permanent --add-service=http
+        firewall-cmd --permanent --add-service=https
+        firewall-cmd --permanent --add-port=3001/tcp
+        firewall-cmd --reload
+        ;;
+esac
+
 log_success "防火墙配置完成"
 
 # 10. 启动应用
@@ -166,16 +297,11 @@ mkdir -p logs
 mkdir -p storage/db
 
 # 启动 PM2
-pm2 start src/server.js --name solar-api --max-memory-restart 512M --instances 1
+pm2 start src/server.js --name solar-api --max-memory-restart 512M
 pm2 save
 pm2 startup | tail -1 | bash 2>/dev/null || true
 
 log_success "应用启动完成"
-
-# 重启 Nginx
-systemctl restart nginx
-systemctl enable nginx
-log_success "Nginx 启动完成"
 
 # 等待服务启动
 sleep 5
